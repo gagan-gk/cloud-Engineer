@@ -1,0 +1,2564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Engineer: Zero → Hero | Interactive Roadmap</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Exo+2:ital,wght@0,300;0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #020409;
+  --bg-mid: #05080f;
+  --bg-card: rgba(5,15,35,0.85);
+  --neon-cyan: #00f5ff;
+  --neon-blue: #0080ff;
+  --neon-purple: #a855f7;
+  --neon-green: #00ff88;
+  --neon-yellow: #ffd700;
+  --neon-red: #ff4466;
+  --neon-orange: #ff8c00;
+  --text-primary: #e0f4ff;
+  --text-secondary: #7bb8d4;
+  --text-muted: #3a5a6a;
+  --glass: rgba(0,245,255,0.04);
+  --glass-border: rgba(0,245,255,0.15);
+  --glass-hover: rgba(0,245,255,0.08);
+  --sidebar-w: 280px;
+  --font-head: 'Orbitron', sans-serif;
+  --font-body: 'Exo 2', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  background:var(--bg-deep);
+  color:var(--text-primary);
+  font-family:var(--font-body);
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* ============ CANVAS BACKGROUND ============ */
+#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.4}
+
+/* ============ HEXGRID OVERLAY ============ */
+.hex-grid{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:0;pointer-events:none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V18L28 2l28 16v32z' fill='none' stroke='rgba(0,245,255,0.04)' stroke-width='1'/%3E%3C/svg%3E");
+  opacity:0.6;
+}
+
+/* ============ LAYOUT ============ */
+#app{position:relative;z-index:1;display:flex;min-height:100vh}
+
+/* ============ SIDEBAR ============ */
+#sidebar{
+  width:var(--sidebar-w);
+  position:fixed;left:0;top:0;height:100vh;
+  background:rgba(2,4,9,0.95);
+  border-right:1px solid var(--glass-border);
+  display:flex;flex-direction:column;
+  z-index:100;
+  transform:translateX(0);
+  transition:var(--transition);
+  overflow-y:auto;
+  scrollbar-width:thin;
+  scrollbar-color:var(--neon-cyan) transparent;
+}
+#sidebar::-webkit-scrollbar{width:3px}
+#sidebar::-webkit-scrollbar-thumb{background:var(--neon-cyan);border-radius:2px}
+
+.sidebar-logo{
+  padding:24px 20px 16px;
+  border-bottom:1px solid var(--glass-border);
+}
+.sidebar-logo .logo-icon{
+  font-family:var(--font-head);
+  font-size:13px;
+  color:var(--neon-cyan);
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+.sidebar-logo .logo-sub{
+  font-size:10px;
+  color:var(--text-muted);
+  letter-spacing:1px;
+  margin-top:4px;
+}
+
+.sidebar-xp{
+  padding:16px 20px;
+  border-bottom:1px solid var(--glass-border);
+}
+.xp-label{font-size:10px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.xp-bar-wrap{background:rgba(255,255,255,0.05);border-radius:999px;height:6px;overflow:hidden}
+.xp-bar{background:linear-gradient(90deg,var(--neon-cyan),var(--neon-purple));height:100%;border-radius:999px;transition:width 0.8s ease;width:0%}
+.xp-text{font-family:var(--font-mono);font-size:11px;color:var(--neon-cyan);margin-top:6px}
+
+.sidebar-nav{padding:12px 0;flex:1}
+.nav-section-title{
+  font-size:9px;letter-spacing:2px;color:var(--text-muted);
+  text-transform:uppercase;padding:12px 20px 6px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 20px;cursor:pointer;
+  font-size:13px;color:var(--text-secondary);
+  transition:var(--transition);
+  border-left:2px solid transparent;
+  text-decoration:none;
+}
+.nav-item:hover,.nav-item.active{
+  background:var(--glass);
+  color:var(--neon-cyan);
+  border-left-color:var(--neon-cyan);
+}
+.nav-item .nav-icon{width:16px;text-align:center;font-size:14px}
+.nav-item .nav-badge{
+  margin-left:auto;background:var(--neon-cyan);color:#000;
+  font-size:9px;font-weight:700;padding:2px 6px;border-radius:999px;
+  font-family:var(--font-mono);
+}
+
+.sidebar-toggle{
+  display:none;position:fixed;top:16px;left:16px;z-index:200;
+  background:var(--glass-border);border:1px solid var(--glass-border);
+  color:var(--neon-cyan);padding:8px 10px;border-radius:8px;cursor:pointer;
+  font-size:16px;
+}
+
+/* ============ MAIN ============ */
+#main{
+  margin-left:var(--sidebar-w);
+  padding:0 32px 80px;
+  width:calc(100% - var(--sidebar-w));
+  min-height:100vh;
+}
+
+/* ============ TOPBAR ============ */
+#topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(2,4,9,0.9);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--glass-border);
+  padding:14px 0;
+  display:flex;align-items:center;gap:16px;
+  margin:0 -32px;
+  padding-left:32px;padding-right:32px;
+}
+.topbar-title{font-family:var(--font-head);font-size:14px;color:var(--neon-cyan);letter-spacing:1px;flex:1}
+#searchBox{
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text-primary);padding:8px 14px;border-radius:8px;
+  font-family:var(--font-body);font-size:13px;width:260px;
+  transition:var(--transition);
+}
+#searchBox:focus{outline:none;border-color:var(--neon-cyan);box-shadow:0 0 16px rgba(0,245,255,0.1)}
+#searchBox::placeholder{color:var(--text-muted)}
+.filter-btn{
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text-secondary);padding:8px 14px;border-radius:8px;
+  font-size:12px;cursor:pointer;transition:var(--transition);
+  font-family:var(--font-body);
+}
+.filter-btn:hover,.filter-btn.active{border-color:var(--neon-cyan);color:var(--neon-cyan)}
+
+/* ============ SECTIONS ============ */
+.section{padding:40px 0;display:none}
+.section.active{display:block}
+
+/* ============ HERO ============ */
+#hero-section{
+  min-height:90vh;display:flex;align-items:center;
+  justify-content:center;flex-direction:column;text-align:center;
+  padding:60px 0;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(0,245,255,0.05);border:1px solid rgba(0,245,255,0.2);
+  padding:6px 16px;border-radius:999px;font-size:11px;
+  color:var(--neon-cyan);letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:28px;animation:pulse-glow 2s ease infinite;
+}
+@keyframes pulse-glow{
+  0%,100%{box-shadow:0 0 10px rgba(0,245,255,0.1)}
+  50%{box-shadow:0 0 24px rgba(0,245,255,0.3)}
+}
+.hero-title{
+  font-family:var(--font-head);
+  font-size:clamp(32px,6vw,72px);
+  font-weight:900;
+  line-height:1.1;
+  margin-bottom:20px;
+  background:linear-gradient(135deg,#fff 0%,var(--neon-cyan) 40%,var(--neon-purple) 80%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+  font-size:clamp(14px,2vw,20px);
+  color:var(--text-secondary);
+  max-width:600px;margin:0 auto 40px;
+  font-weight:300;line-height:1.7;
+}
+.hero-stats{
+  display:flex;gap:32px;margin-bottom:48px;flex-wrap:wrap;justify-content:center;
+}
+.hero-stat{text-align:center}
+.hero-stat .val{
+  font-family:var(--font-head);font-size:28px;font-weight:700;
+  color:var(--neon-cyan);display:block;
+}
+.hero-stat .lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+.cta-btn{
+  background:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue));
+  color:#000;font-family:var(--font-head);font-size:13px;font-weight:700;
+  padding:14px 40px;border-radius:8px;border:none;cursor:pointer;
+  letter-spacing:2px;text-transform:uppercase;transition:var(--transition);
+  text-decoration:none;display:inline-block;
+}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(0,245,255,0.3)}
+
+/* ============ DASHBOARD ============ */
+.dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:32px}
+.dash-card{
+  background:var(--bg-card);border:1px solid var(--glass-border);
+  border-radius:16px;padding:24px;position:relative;overflow:hidden;
+  transition:var(--transition);
+}
+.dash-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--accent,var(--neon-cyan));
+}
+.dash-card:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,0.4)}
+.dash-card .dc-icon{font-size:28px;margin-bottom:12px;display:block}
+.dash-card .dc-val{
+  font-family:var(--font-head);font-size:32px;font-weight:700;
+  color:var(--accent,var(--neon-cyan));
+}
+.dash-card .dc-label{font-size:12px;color:var(--text-muted);margin-top:4px;text-transform:uppercase;letter-spacing:1px}
+.dash-card .dc-sub{font-size:11px;color:var(--text-secondary);margin-top:8px}
+
+/* ============ PROGRESS RING ============ */
+.progress-ring-wrap{display:flex;flex-direction:column;align-items:center;padding:32px 24px}
+.progress-ring{transform:rotate(-90deg)}
+.ring-track{fill:none;stroke:rgba(255,255,255,0.05)}
+.ring-bar{fill:none;stroke:url(#ringGrad);stroke-linecap:round;transition:stroke-dashoffset 1.2s ease}
+.ring-center{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;
+}
+.ring-pct{font-family:var(--font-head);font-size:28px;font-weight:700;color:var(--neon-cyan)}
+.ring-lbl{font-size:10px;color:var(--text-muted);letter-spacing:1px}
+
+/* ============ PHASE CARDS ============ */
+.phases-wrap{display:flex;flex-direction:column;gap:20px}
+.phase-card{
+  background:var(--bg-card);border:1px solid var(--glass-border);
+  border-radius:16px;overflow:hidden;transition:var(--transition);
+}
+.phase-card:hover{border-color:rgba(0,245,255,0.3)}
+.phase-header{
+  display:flex;align-items:center;gap:16px;padding:20px 24px;
+  cursor:pointer;user-select:none;
+  transition:var(--transition);
+}
+.phase-header:hover{background:var(--glass)}
+.phase-num{
+  width:44px;height:44px;border-radius:12px;
+  background:var(--phase-color,var(--neon-cyan));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:16px;font-weight:700;color:#000;
+  flex-shrink:0;
+}
+.phase-meta{flex:1}
+.phase-title{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--text-primary)}
+.phase-subtitle{font-size:12px;color:var(--text-muted);margin-top:2px}
+.phase-stats{display:flex;gap:16px;align-items:center}
+.phase-badge{
+  font-size:10px;padding:4px 10px;border-radius:999px;
+  font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  font-family:var(--font-mono);
+}
+.badge-beginner{background:rgba(0,255,136,0.15);color:var(--neon-green)}
+.badge-intermediate{background:rgba(255,140,0,0.15);color:var(--neon-orange)}
+.badge-advanced{background:rgba(0,128,255,0.15);color:var(--neon-blue)}
+.badge-expert{background:rgba(168,85,247,0.15);color:var(--neon-purple)}
+.phase-progress-bar{
+  width:120px;height:4px;background:rgba(255,255,255,0.06);
+  border-radius:999px;overflow:hidden;
+}
+.phase-progress-fill{height:100%;background:var(--phase-color,var(--neon-cyan));border-radius:999px;transition:width 0.6s ease}
+.phase-toggle{
+  width:28px;height:28px;border-radius:8px;
+  background:var(--glass);border:1px solid var(--glass-border);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--neon-cyan);font-size:12px;transition:var(--transition);
+  flex-shrink:0;
+}
+.phase-card.expanded .phase-toggle{transform:rotate(90deg)}
+.phase-body{display:none;border-top:1px solid var(--glass-border)}
+.phase-card.expanded .phase-body{display:block}
+
+/* ============ TOPIC ITEMS ============ */
+.topics-grid{display:flex;flex-direction:column;gap:0}
+.topic-item{
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  transition:var(--transition);
+}
+.topic-item:last-child{border-bottom:none}
+.topic-header{
+  display:flex;align-items:center;gap:12px;padding:16px 24px;
+  cursor:pointer;transition:var(--transition);
+}
+.topic-header:hover{background:var(--glass)}
+.topic-check{
+  width:20px;height:20px;border-radius:6px;
+  border:2px solid var(--glass-border);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:var(--transition);cursor:pointer;font-size:10px;
+}
+.topic-check.done{background:var(--neon-green);border-color:var(--neon-green);color:#000}
+.topic-name{flex:1;font-size:14px;color:var(--text-primary)}
+.topic-name.done-text{text-decoration:line-through;color:var(--text-muted)}
+.topic-xp{font-family:var(--font-mono);font-size:10px;color:var(--neon-purple);margin-left:auto}
+.topic-expand{color:var(--text-muted);font-size:11px;transition:var(--transition)}
+.topic-item.open .topic-expand{transform:rotate(90deg);color:var(--neon-cyan)}
+.topic-detail{
+  display:none;padding:0 24px 20px 56px;
+  animation:slideDown 0.2s ease;
+}
+.topic-item.open .topic-detail{display:block}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+.detail-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.dtab{
+  padding:6px 14px;border-radius:6px;font-size:11px;cursor:pointer;
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text-muted);transition:var(--transition);letter-spacing:0.5px;
+}
+.dtab.active{background:rgba(0,245,255,0.1);border-color:var(--neon-cyan);color:var(--neon-cyan)}
+.detail-panel{display:none}
+.detail-panel.active{display:block}
+.detail-list{list-style:none;padding:0}
+.detail-list li{
+  padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:13px;color:var(--text-secondary);display:flex;gap:8px;
+}
+.detail-list li::before{content:'▸';color:var(--neon-cyan);flex-shrink:0}
+.detail-list li:last-child{border-bottom:none}
+a.resource-link{
+  color:var(--neon-cyan);text-decoration:none;
+  transition:var(--transition);
+}
+a.resource-link:hover{color:var(--neon-purple);text-decoration:underline}
+.code-block{
+  background:#0a0e1a;border:1px solid var(--glass-border);
+  border-radius:8px;padding:14px 16px;font-family:var(--font-mono);
+  font-size:12px;color:var(--neon-green);overflow-x:auto;
+  margin:8px 0;white-space:pre;line-height:1.7;
+}
+.interview-q{
+  background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.15);
+  border-radius:8px;padding:12px 16px;margin-bottom:8px;font-size:13px;
+  color:var(--text-secondary);
+}
+.interview-q strong{color:var(--neon-purple);display:block;margin-bottom:4px;font-size:12px;font-family:var(--font-mono)}
+.tip-box{
+  background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.2);
+  border-radius:8px;padding:12px 16px;margin:8px 0;font-size:13px;color:var(--text-secondary);
+}
+.tip-box::before{content:'💡 TIP: ';color:var(--neon-yellow);font-weight:700;font-size:11px}
+
+/* ============ DAILY PLAN ============ */
+.daily-controls{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;align-items:center}
+.week-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.wtab{
+  padding:8px 16px;border-radius:8px;font-size:12px;cursor:pointer;
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text-muted);transition:var(--transition);font-family:var(--font-mono);
+}
+.wtab.active{background:rgba(0,245,255,0.1);border-color:var(--neon-cyan);color:var(--neon-cyan)}
+.days-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.day-card{
+  background:var(--bg-card);border:1px solid var(--glass-border);
+  border-radius:14px;padding:20px;transition:var(--transition);
+  position:relative;overflow:hidden;
+}
+.day-card::before{
+  content:'';position:absolute;top:0;left:0;width:3px;height:100%;
+  background:var(--day-color,var(--neon-cyan));
+}
+.day-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,0.3)}
+.day-num{font-family:var(--font-head);font-size:11px;color:var(--text-muted);letter-spacing:1px;margin-bottom:8px}
+.day-topic{font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:12px}
+.day-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.day-tag{
+  font-size:10px;padding:3px 8px;border-radius:4px;
+  background:var(--glass);border:1px solid var(--glass-border);color:var(--text-muted);
+  font-family:var(--font-mono);
+}
+.day-time-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.day-time-slot{
+  background:var(--glass);border-radius:8px;padding:8px;text-align:center;
+}
+.day-time-slot .t-val{font-family:var(--font-head);font-size:14px;color:var(--neon-cyan)}
+.day-time-slot .t-lbl{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+.day-check-wrap{display:flex;justify-content:flex-end;margin-top:8px}
+.day-check-btn{
+  display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;
+  color:var(--text-muted);transition:var(--transition);
+  background:none;border:1px solid var(--glass-border);
+  border-radius:6px;padding:6px 12px;
+}
+.day-check-btn:hover{color:var(--neon-green);border-color:var(--neon-green)}
+.day-check-btn.done{color:var(--neon-green);border-color:var(--neon-green);background:rgba(0,255,136,0.05)}
+.day-expand-btn{
+  width:100%;background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text-muted);padding:8px;border-radius:8px;cursor:pointer;
+  font-size:11px;margin-top:10px;transition:var(--transition);
+  font-family:var(--font-body);
+}
+.day-expand-btn:hover{color:var(--neon-cyan);border-color:var(--neon-cyan)}
+.day-details{display:none;margin-top:14px;border-top:1px solid var(--glass-border);padding-top:14px}
+.day-card.expanded .day-details{display:block}
+.day-detail-section{margin-bottom:12px}
+.day-detail-section h6{
+  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--neon-cyan);margin-bottom:8px;font-family:var(--font-mono);
+}
+.day-detail-section ul{list-style:none;padding:0}
+.day-detail-section ul li{
+  font-size:12px;color:var(--text-secondary);padding:4px 0;
+  display:flex;gap:6px;
+}
+.day-detail-section ul li::before{content:'›';color:var(--neon-cyan)}
+
+/* ============ SKILL TREE ============ */
+#skillTreeCanvas{
+  width:100%;height:600px;background:var(--bg-card);
+  border:1px solid var(--glass-border);border-radius:16px;
+  cursor:grab;
+}
+#skillTreeCanvas:active{cursor:grabbing}
+.skill-tree-legend{display:flex;gap:20px;margin-top:16px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary)}
+.legend-dot{width:12px;height:12px;border-radius:50%}
+
+/* ============ QUIZ ============ */
+.quiz-card{
+  background:var(--bg-card);border:1px solid var(--glass-border);
+  border-radius:16px;padding:32px;max-width:700px;margin:0 auto;
+}
+.quiz-progress-wrap{margin-bottom:28px}
+.quiz-progress-bar{height:3px;background:rgba(255,255,255,0.05);border-radius:999px;overflow:hidden;margin-top:8px}
+.quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-purple));border-radius:999px;transition:width 0.4s ease}
+.quiz-cat{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--neon-cyan);margin-bottom:12px;font-family:var(--font-mono)}
+.quiz-q{font-size:18px;color:var(--text-primary);margin-bottom:28px;line-height:1.6;font-weight:600}
+.quiz-options{display:flex;flex-direction:column;gap:12px}
+.quiz-opt{
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:10px;padding:14px 18px;cursor:pointer;
+  font-size:14px;color:var(--text-secondary);
+  transition:var(--transition);text-align:left;
+  display:flex;align-items:center;gap:12px;
+}
+.quiz-opt::before{
+  content:attr(data-letter);
+  width:26px;height:26px;border-radius:6px;
+  background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:11px;flex-shrink:0;color:var(--text-muted);
+}
+.quiz-opt:hover{border-color:var(--neon-cyan);color:var(--text-primary);background:var(--glass-hover)}
+.quiz-opt.correct{background:rgba(0,255,136,0.1);border-color:var(--neon-green);color:var(--neon-green)}
+.quiz-opt.wrong{background:rgba(255,68,102,0.1);border-color:var(--neon-red);color:var(--neon-red)}
+.quiz-opt:disabled{cursor:default;pointer-events:none}
+.quiz-feedback{
+  margin-top:20px;padding:16px;border-radius:10px;font-size:13px;
+  display:none;line-height:1.6;
+}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct-fb{background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.2);color:var(--neon-green)}
+.quiz-feedback.wrong-fb{background:rgba(255,68,102,0.08);border:1px solid rgba(255,68,102,0.2);color:var(--neon-red)}
+.quiz-next{
+  margin-top:20px;padding:12px 28px;
+  background:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue));
+  border:none;border-radius:8px;color:#000;font-family:var(--font-head);
+  font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;
+  display:none;transition:var(--transition);
+}
+.quiz-next.show{display:inline-block}
+.quiz-next:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,245,255,0.3)}
+.quiz-score{text-align:center;padding:40px}
+.quiz-score .score-val{font-family:var(--font-head);font-size:56px;color:var(--neon-cyan);font-weight:900}
+.quiz-cat-selector{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.qcat-btn{
+  padding:8px 16px;border-radius:8px;font-size:12px;cursor:pointer;
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text-muted);transition:var(--transition);
+}
+.qcat-btn.active{background:rgba(0,245,255,0.1);border-color:var(--neon-cyan);color:var(--neon-cyan)}
+
+/* ============ TERMINAL ============ */
+.terminal-wrap{
+  background:#000;border:1px solid rgba(0,255,136,0.3);
+  border-radius:14px;overflow:hidden;max-width:900px;
+}
+.terminal-bar{
+  background:#111;padding:12px 16px;display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.tb-dot{width:12px;height:12px;border-radius:50%}
+.tb-dot:nth-child(1){background:#ff5f57}
+.tb-dot:nth-child(2){background:#ffbd2e}
+.tb-dot:nth-child(3){background:#28c840}
+.terminal-label{margin-left:8px;font-family:var(--font-mono);font-size:11px;color:rgba(255,255,255,0.3)}
+.terminal-output{
+  padding:16px;font-family:var(--font-mono);font-size:13px;
+  min-height:280px;max-height:400px;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:rgba(0,255,136,0.3) transparent;
+}
+.t-line{padding:2px 0;line-height:1.6}
+.t-cmd{color:var(--neon-green)}
+.t-out{color:rgba(255,255,255,0.6)}
+.t-err{color:var(--neon-red)}
+.t-info{color:var(--neon-cyan)}
+.terminal-input-row{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;border-top:1px solid rgba(255,255,255,0.06);
+  background:#050505;
+}
+.t-prompt{color:var(--neon-green);font-family:var(--font-mono);font-size:13px;white-space:nowrap}
+#termInput{
+  flex:1;background:none;border:none;outline:none;
+  color:var(--neon-green);font-family:var(--font-mono);font-size:13px;
+  caret-color:var(--neon-green);
+}
+.term-hint{font-size:11px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:var(--font-mono)}
+.term-cmds{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.term-cmd-btn{
+  background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.2);
+  color:var(--neon-green);padding:6px 12px;border-radius:6px;
+  font-family:var(--font-mono);font-size:11px;cursor:pointer;transition:var(--transition);
+}
+.term-cmd-btn:hover{background:rgba(0,255,136,0.15)}
+
+/* ============ ACHIEVEMENTS ============ */
+.achievements-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+.ach-card{
+  background:var(--bg-card);border:1px solid var(--glass-border);
+  border-radius:14px;padding:20px;text-align:center;transition:var(--transition);
+  position:relative;
+}
+.ach-card.unlocked{border-color:rgba(255,215,0,0.4);box-shadow:0 0 20px rgba(255,215,0,0.05)}
+.ach-card.locked{opacity:0.4;filter:grayscale(0.8)}
+.ach-icon{font-size:36px;margin-bottom:12px;display:block}
+.ach-name{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px}
+.ach-desc{font-size:11px;color:var(--text-muted)}
+.ach-badge{
+  position:absolute;top:10px;right:10px;
+  background:var(--neon-yellow);color:#000;
+  font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;
+  font-family:var(--font-mono);
+}
+
+/* ============ CERTS ============ */
+.certs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.cert-card{
+  background:var(--bg-card);border:1px solid var(--glass-border);
+  border-radius:16px;padding:24px;transition:var(--transition);
+  position:relative;overflow:hidden;
+}
+.cert-card::after{
+  content:'';position:absolute;bottom:-40px;right:-40px;
+  width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,var(--cert-color,var(--neon-cyan)) 0%,transparent 70%);
+  opacity:0.1;pointer-events:none;
+}
+.cert-card:hover{transform:translateY(-3px);border-color:var(--cert-color,var(--neon-cyan))}
+.cert-logo{font-size:32px;margin-bottom:16px}
+.cert-name{font-family:var(--font-head);font-size:14px;color:var(--text-primary);margin-bottom:6px}
+.cert-provider{font-size:11px;color:var(--text-muted);margin-bottom:16px}
+.cert-timeline{display:flex;flex-direction:column;gap:6px}
+.cert-milestone{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary)}
+.cert-milestone::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--cert-color,var(--neon-cyan));flex-shrink:0}
+.cert-progress{margin-top:16px}
+.cert-progress-bar{height:4px;background:rgba(255,255,255,0.05);border-radius:999px;overflow:hidden;margin-top:4px}
+.cert-progress-fill{height:100%;background:var(--cert-color,var(--neon-cyan));border-radius:999px;transition:width 0.8s ease}
+.cert-label{font-size:10px;color:var(--text-muted);letter-spacing:1px}
+
+/* ============ NOTES / CHEATSHEET ============ */
+.cheat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.cheat-card{
+  background:var(--bg-card);border:1px solid var(--glass-border);
+  border-radius:14px;overflow:hidden;transition:var(--transition);
+}
+.cheat-card:hover{border-color:rgba(0,245,255,0.2)}
+.cheat-header{
+  padding:14px 18px;background:rgba(0,245,255,0.04);
+  border-bottom:1px solid var(--glass-border);
+  display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+}
+.cheat-title{font-family:var(--font-mono);font-size:12px;color:var(--neon-cyan);letter-spacing:1px}
+.cheat-body{padding:16px 18px;display:none}
+.cheat-card.open .cheat-body{display:block}
+.cheat-line{
+  display:grid;grid-template-columns:auto 1fr;gap:16px;
+  padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:12px;align-items:start;
+}
+.cheat-line:last-child{border-bottom:none}
+.cheat-cmd{font-family:var(--font-mono);color:var(--neon-green);white-space:nowrap}
+.cheat-desc{color:var(--text-secondary)}
+.download-btn{
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--neon-cyan);padding:10px 20px;border-radius:8px;
+  font-size:12px;cursor:pointer;transition:var(--transition);
+  font-family:var(--font-mono);display:inline-flex;align-items:center;gap:6px;
+  text-decoration:none;
+}
+.download-btn:hover{border-color:var(--neon-cyan);background:rgba(0,245,255,0.05)}
+
+/* ============ ARCH DIAGRAM ============ */
+.arch-diagram{
+  background:var(--bg-card);border:1px solid var(--glass-border);
+  border-radius:16px;padding:32px;overflow-x:auto;
+}
+.arch-row{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.arch-node{
+  background:rgba(0,245,255,0.05);border:1px solid rgba(0,245,255,0.2);
+  border-radius:10px;padding:12px 18px;text-align:center;
+  font-size:12px;color:var(--neon-cyan);font-family:var(--font-mono);
+  min-width:100px;position:relative;transition:var(--transition);cursor:pointer;
+}
+.arch-node:hover{background:rgba(0,245,255,0.1);transform:scale(1.03)}
+.arch-node .node-icon{font-size:20px;margin-bottom:4px;display:block}
+.arch-arrow{color:var(--text-muted);font-size:20px}
+.arch-tier-label{
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--text-muted);text-align:center;margin-bottom:10px;font-family:var(--font-mono);
+}
+.arch-separator{
+  border:none;border-top:1px dashed rgba(255,255,255,0.06);
+  margin:16px 0;
+}
+
+/* ============ SECTION HEADER ============ */
+.section-header{margin-bottom:32px}
+.section-header h2{font-family:var(--font-head);font-size:24px;color:var(--text-primary)}
+.section-header p{font-size:14px;color:var(--text-muted);margin-top:6px}
+.section-line{
+  width:60px;height:2px;margin-top:12px;
+  background:linear-gradient(90deg,var(--neon-cyan),transparent);
+}
+
+/* ============ STREAK ============ */
+.streak-display{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(255,140,0,0.06);border:1px solid rgba(255,140,0,0.2);
+  border-radius:12px;padding:14px 20px;margin-bottom:24px;
+}
+.streak-fire{font-size:28px}
+.streak-num{font-family:var(--font-head);font-size:28px;font-weight:700;color:var(--neon-orange)}
+.streak-label{font-size:12px;color:var(--text-muted)}
+
+/* ============ MISC ============ */
+.tag{
+  display:inline-block;font-size:10px;padding:3px 8px;border-radius:4px;
+  background:var(--glass);border:1px solid var(--glass-border);color:var(--text-muted);
+  font-family:var(--font-mono);margin:2px;
+}
+.glow-text{text-shadow:0 0 20px currentColor}
+.divider{border:none;border-top:1px solid var(--glass-border);margin:32px 0}
+.empty-state{
+  text-align:center;padding:60px 20px;color:var(--text-muted);
+}
+.empty-state .es-icon{font-size:48px;margin-bottom:16px;opacity:0.4}
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  background:rgba(0,245,255,0.08);border:1px solid rgba(0,245,255,0.3);
+  backdrop-filter:blur(20px);border-radius:12px;padding:14px 20px;
+  color:var(--text-primary);font-size:13px;
+  animation:slideUp 0.3s ease;max-width:300px;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.toast.fade-out{animation:fadeOut 0.3s ease forwards}
+@keyframes fadeOut{to{opacity:0;transform:translateY(20px)}}
+.level-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);
+  padding:6px 14px;border-radius:999px;font-size:12px;color:var(--neon-purple);
+  font-family:var(--font-mono);
+}
+.search-highlight{background:rgba(255,215,0,0.2);border-radius:2px;color:var(--neon-yellow)}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:900px){
+  :root{--sidebar-w:0px}
+  #sidebar{transform:translateX(-280px);width:280px}
+  #sidebar.open{transform:translateX(0)}
+  #main{margin-left:0;width:100%;padding:0 16px 60px}
+  #topbar{margin:0 -16px;padding-left:56px;padding-right:16px}
+  .sidebar-toggle{display:block}
+  .days-grid{grid-template-columns:1fr}
+  .dashboard-grid{grid-template-columns:1fr 1fr}
+  .hero-title{font-size:clamp(24px,8vw,48px)}
+}
+@media(max-width:500px){
+  .dashboard-grid{grid-template-columns:1fr}
+  .hero-stats{gap:20px}
+  .quiz-q{font-size:15px}
+}
+
+/* ============ SCROLLBAR ============ */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,245,255,0.2);border-radius:3px}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<div class="hex-grid"></div>
+<button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+
+<div id="app">
+<!-- ===== SIDEBAR ===== -->
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">☁ Cloud Engineer</div>
+    <div class="logo-sub">Zero → Hero Roadmap</div>
+  </div>
+  <div class="sidebar-xp">
+    <div class="xp-label">Level <span id="sidebarLevel">1</span> — <span id="sidebarTitle">Novice</span></div>
+    <div class="xp-bar-wrap"><div class="xp-bar" id="sidebarXpBar"></div></div>
+    <div class="xp-text"><span id="sidebarXp">0</span> / <span id="sidebarXpNext">500</span> XP</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-title">Navigation</div>
+    <a class="nav-item active" onclick="showSection('dashboard')" href="#">
+      <span class="nav-icon">⬡</span> Dashboard
+    </a>
+    <a class="nav-item" onclick="showSection('roadmap')" href="#">
+      <span class="nav-icon">🗺</span> Roadmap
+    </a>
+    <a class="nav-item" onclick="showSection('dailyplan')" href="#">
+      <span class="nav-icon">📅</span> Daily Plan
+    </a>
+    <a class="nav-item" onclick="showSection('skilltree')" href="#">
+      <span class="nav-icon">🌐</span> Skill Tree
+    </a>
+    <a class="nav-item" onclick="showSection('quiz')" href="#">
+      <span class="nav-icon">⚡</span> Quizzes
+      <span class="nav-badge" id="quizBadge">40+</span>
+    </a>
+    <a class="nav-item" onclick="showSection('terminal')" href="#">
+      <span class="nav-icon">⌨</span> Terminal Lab
+    </a>
+    <div class="nav-section-title">Resources</div>
+    <a class="nav-item" onclick="showSection('certs')" href="#">
+      <span class="nav-icon">🏆</span> Certifications
+    </a>
+    <a class="nav-item" onclick="showSection('cheatsheets')" href="#">
+      <span class="nav-icon">📋</span> Cheat Sheets
+    </a>
+    <a class="nav-item" onclick="showSection('architecture')" href="#">
+      <span class="nav-icon">🏗</span> Architecture
+    </a>
+    <a class="nav-item" onclick="showSection('achievements')" href="#">
+      <span class="nav-icon">🎖</span> Achievements
+    </a>
+    <div class="nav-section-title">Stats</div>
+    <div style="padding:12px 20px">
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Overall Progress</div>
+      <div class="xp-bar-wrap"><div class="xp-bar" id="navProgressBar" style="background:linear-gradient(90deg,var(--neon-green),var(--neon-cyan))"></div></div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--neon-green);margin-top:4px" id="navProgressText">0%</div>
+    </div>
+  </nav>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<main id="main">
+  <div id="topbar">
+    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    <input id="searchBox" type="text" placeholder="🔍 Search topics, tools, concepts..." oninput="handleSearch(this.value)">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('Beginner',this)">Beginner</button>
+    <button class="filter-btn" onclick="setFilter('Advanced',this)">Advanced</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="section active" id="s-dashboard">
+    <div style="padding:40px 0 0">
+      <div class="hero-badge">🛰 Interactive Learning Platform</div>
+      <h1 class="hero-title">Cloud Engineer<br>Zero → Hero</h1>
+      <p class="hero-sub">From Linux novice to production-grade cloud architect. 90 days, 3 hours/day, fully structured.</p>
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="val">90</span><span class="lbl">Days</span></div>
+        <div class="hero-stat"><span class="val">8</span><span class="lbl">Phases</span></div>
+        <div class="hero-stat"><span class="val">150+</span><span class="lbl">Topics</span></div>
+        <div class="hero-stat"><span class="val">500+</span><span class="lbl">Tasks</span></div>
+      </div>
+    </div>
+
+    <div class="streak-display" style="max-width:400px">
+      <span class="streak-fire">🔥</span>
+      <div>
+        <div class="streak-num" id="streakCount">0</div>
+        <div class="streak-label">Day Streak — Keep it going!</div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="dash-card" style="--accent:var(--neon-cyan)">
+        <span class="dc-icon">📊</span>
+        <div class="dc-val" id="dc-overall">0%</div>
+        <div class="dc-label">Overall Progress</div>
+        <div class="dc-sub">Topics completed</div>
+      </div>
+      <div class="dash-card" style="--accent:var(--neon-green)">
+        <span class="dc-icon">✅</span>
+        <div class="dc-val" id="dc-completed">0</div>
+        <div class="dc-label">Completed</div>
+        <div class="dc-sub">out of <span id="dc-total">0</span> topics</div>
+      </div>
+      <div class="dash-card" style="--accent:var(--neon-orange)">
+        <span class="dc-icon">⏰</span>
+        <div class="dc-val" id="dc-remaining">0</div>
+        <div class="dc-label">Remaining</div>
+        <div class="dc-sub">topics to cover</div>
+      </div>
+      <div class="dash-card" style="--accent:var(--neon-purple)">
+        <span class="dc-icon">⚡</span>
+        <div class="dc-val" id="dc-xp">0</div>
+        <div class="dc-label">Total XP</div>
+        <div class="dc-sub" id="dc-level">Level 1 – Novice</div>
+      </div>
+      <div class="dash-card" style="--accent:var(--neon-yellow)">
+        <span class="dc-icon">🎯</span>
+        <div class="dc-val" id="dc-readiness">0%</div>
+        <div class="dc-label">Interview Readiness</div>
+        <div class="dc-sub" id="dc-readiness-label">Keep learning</div>
+      </div>
+      <div class="dash-card" style="--accent:var(--neon-blue)">
+        <span class="dc-icon">📅</span>
+        <div class="dc-val" id="dc-days">0</div>
+        <div class="dc-label">Days Completed</div>
+        <div class="dc-sub">Daily plan progress</div>
+      </div>
+    </div>
+
+    <div class="section-header"><h2>Phase Overview</h2><div class="section-line"></div></div>
+    <div id="dashPhaseOverview"></div>
+  </div>
+
+  <!-- ROADMAP -->
+  <div class="section" id="s-roadmap">
+    <div class="section-header">
+      <h2>🗺 Complete Roadmap</h2>
+      <p>Click any phase to expand. Check off topics as you complete them.</p>
+      <div class="section-line"></div>
+    </div>
+    <div class="phases-wrap" id="phasesContainer"></div>
+  </div>
+
+  <!-- DAILY PLAN -->
+  <div class="section" id="s-dailyplan">
+    <div class="section-header">
+      <h2>📅 Daily Learning Plan</h2>
+      <p>3 hours/day — Theory + Practical + Labs. Adjust per your pace.</p>
+      <div class="section-line"></div>
+    </div>
+    <div class="week-tabs" id="weekTabs"></div>
+    <div class="days-grid" id="daysGrid"></div>
+  </div>
+
+  <!-- SKILL TREE -->
+  <div class="section" id="s-skilltree">
+    <div class="section-header">
+      <h2>🌐 Skill Tree</h2>
+      <p>Visual progression map — drag to explore, click nodes to view details.</p>
+      <div class="section-line"></div>
+    </div>
+    <canvas id="skillTreeCanvas"></canvas>
+    <div class="skill-tree-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--neon-green)"></div>Completed</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--neon-cyan)"></div>In Progress</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.1)"></div>Locked</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--neon-yellow)"></div>Milestone</div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="section" id="s-quiz">
+    <div class="section-header">
+      <h2>⚡ Knowledge Quizzes</h2>
+      <p>Test your understanding — topics auto-unlock as you progress.</p>
+      <div class="section-line"></div>
+    </div>
+    <div class="quiz-cat-selector" id="quizCatSelector"></div>
+    <div id="quizContainer"></div>
+  </div>
+
+  <!-- TERMINAL -->
+  <div class="section" id="s-terminal">
+    <div class="section-header">
+      <h2>⌨ Terminal Lab</h2>
+      <p>Practice Linux & cloud commands in a simulated environment.</p>
+      <div class="section-line"></div>
+    </div>
+    <div class="term-cmds" id="termCmds"></div>
+    <div class="terminal-wrap">
+      <div class="terminal-bar">
+        <div class="tb-dot"></div><div class="tb-dot"></div><div class="tb-dot"></div>
+        <div class="terminal-label">cloud-lab — bash — 80×24</div>
+      </div>
+      <div class="terminal-output" id="termOutput"></div>
+      <div class="terminal-input-row">
+        <span class="t-prompt">cloud@lab:~$</span>
+        <input id="termInput" type="text" autocomplete="off" spellcheck="false" placeholder="type a command...">
+      </div>
+    </div>
+    <div class="term-hint">Tip: type <code style="color:var(--neon-green)">help</code> to see available commands</div>
+  </div>
+
+  <!-- CERTIFICATIONS -->
+  <div class="section" id="s-certs">
+    <div class="section-header">
+      <h2>🏆 Certification Paths</h2>
+      <p>Industry certifications to validate your cloud expertise.</p>
+      <div class="section-line"></div>
+    </div>
+    <div class="certs-grid" id="certsGrid"></div>
+  </div>
+
+  <!-- CHEAT SHEETS -->
+  <div class="section" id="s-cheatsheets">
+    <div class="section-header">
+      <h2>📋 Command Cheat Sheets</h2>
+      <p>Quick reference for all critical commands and concepts.</p>
+      <div class="section-line"></div>
+    </div>
+    <div style="margin-bottom:16px">
+      <button class="download-btn" onclick="downloadAllCheatsheets()">⬇ Download All Cheat Sheets</button>
+    </div>
+    <div class="cheat-grid" id="cheatGrid"></div>
+  </div>
+
+  <!-- ARCHITECTURE -->
+  <div class="section" id="s-architecture">
+    <div class="section-header">
+      <h2>🏗 Cloud Architecture Diagrams</h2>
+      <p>Common production patterns — hover nodes for details.</p>
+      <div class="section-line"></div>
+    </div>
+    <div id="archContainer"></div>
+  </div>
+
+  <!-- ACHIEVEMENTS -->
+  <div class="section" id="s-achievements">
+    <div class="section-header">
+      <h2>🎖 Achievements</h2>
+      <p>Unlock badges as you progress through your learning journey.</p>
+      <div class="section-line"></div>
+    </div>
+    <div class="achievements-grid" id="achGrid"></div>
+  </div>
+</main>
+</div>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+// ===================== DATA =====================
+const PHASES = [
+ {
+  id:'ph1', title:'Phase 1: Linux Administration', difficulty:'Beginner',
+  color:'#00ff88', weeks:'Weeks 1–2', xpTotal:500,
+  topics:[
+   {
+    id:'lx1', name:'Linux Introduction & History', xp:20,
+    subtopics:['Unix origins & Linux kernel','Major distros: Ubuntu, CentOS, RHEL','Linux architecture overview','Shell types: bash, zsh, sh'],
+    resources:['https://linuxjourney.com','https://www.kernel.org/doc/html/latest/','https://overthewire.org/wargames/bandit/'],
+    labs:['Install Ubuntu 22.04 in VirtualBox','Navigate filesystem without GUI','Explore /proc and /sys directories'],
+    commands:['uname -a','lsb_release -a','cat /etc/os-release','whoami','id'],
+    interview:['What is the difference between UNIX and Linux?','Explain the Linux boot process from BIOS to shell','What are inodes in Linux?'],
+    tips:'Always use a VM for practice — it\'s safe to break things there!'
+   },
+   {
+    id:'lx2', name:'Filesystem Hierarchy & Navigation', xp:25,
+    subtopics:['/bin /sbin /usr /etc /var /home /tmp /proc /dev','Absolute vs relative paths','Hard links vs soft links','File types: regular, directory, socket, block, char'],
+    resources:['https://linuxjourney.com/lesson/filesystem-hierarchy','https://tldp.org/LDP/Linux-Filesystem-Hierarchy/html/'],
+    labs:['Map the full filesystem tree on paper','Create complex nested directories','Find all files owned by root'],
+    commands:['ls -lahF','tree -L 3','find / -type f -name "*.conf" 2>/dev/null','stat filename','file filename','du -sh *'],
+    interview:['What is /proc filesystem?','Difference between /bin and /usr/bin?','What is an inode and what info does it store?'],
+    tips:'Run `tree -L 2 /` to get a visual overview of the Linux filesystem'
+   },
+   {
+    id:'lx3', name:'Users, Groups & Permissions', xp:30,
+    subtopics:['UID/GID concepts','/etc/passwd and /etc/shadow','chmod numeric & symbolic modes','chown, chgrp, umask','SUID, SGID, Sticky Bit','sudo and sudoers'],
+    resources:['https://linuxjourney.com/lesson/users-and-groups','https://man7.org/linux/man-pages/man5/sudoers.5.html'],
+    labs:['Create user accounts with specific shells','Set up sudoers with restricted commands','Build a shared directory with sticky bit'],
+    commands:['useradd -m -s /bin/bash user1','passwd user1','usermod -aG sudo user1','chmod 755 dir','chown user:group file','sudo visudo','getfacl / setfacl'],
+    interview:['What does SUID bit do on an executable?','How does sudo differ from su?','Explain ACLs vs traditional permissions'],
+    tips:'Use `chmod +x` often — don\'t memorize all numeric modes, just the common ones: 755, 644, 600'
+   },
+   {
+    id:'lx4', name:'Processes & System Management', xp:30,
+    subtopics:['Process lifecycle: fork, exec, wait','PID, PPID, signals','systemd and service management','cron and scheduled tasks','ulimits and resource control','Zombie and orphan processes'],
+    resources:['https://man7.org/linux/man-pages/man7/signal.7.html','https://www.digitalocean.com/community/tutorials/systemd-essentials-working-with-services-units-and-the-journal'],
+    labs:['Write a systemd service for a Python script','Set up a cron job with logging','Send signals to processes'],
+    commands:['ps auxf','top / htop','kill -9 PID','systemctl start|stop|status|enable','journalctl -u service -f','crontab -e','nice -n 10 cmd','nohup cmd &'],
+    interview:['Explain the difference between kill -9 and kill -15','How does systemd differ from init?','What happens when you press Ctrl+C?'],
+    tips:'`journalctl -u service --since "1 hour ago"` is your best debugging friend'
+   },
+   {
+    id:'lx5', name:'Text Processing & Log Analysis', xp:35,
+    subtopics:['grep, egrep, fgrep patterns','awk — field processing','sed — stream editing','sort, uniq, wc, cut','tail -f for live logs','xargs and pipes','Regular expressions'],
+    resources:['https://www.gnu.org/software/gawk/manual/gawk.html','https://www.grymoire.com/Unix/Sed.html'],
+    labs:['Parse /var/log/auth.log for failed SSHs','Extract fields from CSV using awk','Build a log monitoring script'],
+    commands:['grep -r "ERROR" /var/log/','awk -F: \'{print $1}\' /etc/passwd','sed -i \'s/old/new/g\' file','tail -f /var/log/syslog | grep -i error','sort file | uniq -c | sort -rn | head -20'],
+    interview:['Write awk command to sum column 3 of a CSV','How do you find the 5th most common IP in access.log?','Difference between grep and egrep?'],
+    tips:'Learn awk deeply — it replaces 90% of Python scripts for log parsing on prod servers'
+   },
+   {
+    id:'lx6', name:'Networking Commands & SSH', xp:30,
+    subtopics:['ifconfig vs ip commands','netstat vs ss','tcpdump basics','SSH key-based auth','SSH config file','SCP and rsync','Port forwarding'],
+    resources:['https://www.ssh.com/academy/ssh','https://linux.die.net/man/8/tcpdump'],
+    labs:['Set up SSH key-based auth between two VMs','Configure SSH tunneling','Monitor network traffic with tcpdump'],
+    commands:['ip addr show','ss -tunlp','ssh-keygen -t ed25519','ssh-copy-id user@host','scp -r dir user@host:/path','rsync -avz src/ dest/','tcpdump -i eth0 port 80 -n'],
+    interview:['How does SSH key authentication work?','Difference between SCP and rsync?','How do you debug a network connectivity issue on Linux?'],
+    tips:'Always use ed25519 keys — they\'re faster and more secure than RSA'
+   },
+   {
+    id:'lx7', name:'Storage & Disk Management', xp:25,
+    subtopics:['fdisk, parted, lsblk','mkfs, mount, umount','/etc/fstab','LVM: PV, VG, LV','RAID concepts','df, du, iostat'],
+    resources:['https://tldp.org/HOWTO/LVM-HOWTO/','https://man7.org/linux/man-pages/man8/fdisk.8.html'],
+    labs:['Create LVM volume from scratch','Mount NFS share persistently','Monitor disk I/O during load'],
+    commands:['lsblk -f','fdisk -l','mount /dev/sdb1 /mnt/data','df -hT','du -sh /var/* | sort -rh | head','iostat -x 1 5','lvcreate -L 10G -n data vg0'],
+    interview:['What is LVM and why use it?','How do you recover from a full disk?','Explain inode exhaustion'],
+    tips:'`df -i` shows inode usage — a disk can be "full" even with free space if inodes are exhausted'
+   },
+   {
+    id:'lx8', name:'Package Management & Software', xp:20,
+    subtopics:['apt / yum / dnf','RPM vs DEB packages','Compiling from source','Environment variables','PATH and .bashrc / .zshrc','Snap, Flatpak'],
+    resources:['https://ubuntu.com/server/docs/package-management','https://docs.fedoraproject.org/en-US/quick-docs/dnf/'],
+    labs:['Build Nginx from source','Write a bootstrap script with apt installs','Configure custom PATH'],
+    commands:['apt update && apt upgrade -y','apt install -y nginx','dpkg -l | grep nginx','rpm -qa | grep httpd','which / whereis / type','export PATH=$PATH:/usr/local/bin'],
+    interview:['What\'s the difference between apt upgrade and apt full-upgrade?','How do you list files in an installed package?','Explain LD_LIBRARY_PATH'],
+    tips:'Always run `apt update` before `apt install` — stale package lists cause frustrating errors'
+   }
+  ]
+ },
+ {
+  id:'ph2', title:'Phase 2: Networking & Shell Scripting', difficulty:'Beginner',
+  color:'#00d4ff', weeks:'Weeks 3–4', xpTotal:600,
+  topics:[
+   {
+    id:'net1', name:'OSI Model & TCP/IP Stack', xp:30,
+    subtopics:['7 OSI layers with protocols','TCP vs UDP differences','3-way handshake','IP headers and fragmentation','Subnetting & CIDR notation','BGP, OSPF concepts'],
+    resources:['https://www.cloudflare.com/learning/network-layer/what-is-the-osi-model/','https://jodies.de/ipcalc'],
+    labs:['Capture TCP handshake with Wireshark/tcpdump','Calculate subnets for a given CIDR','Trace a packet from browser to server'],
+    commands:['tcpdump -i any tcp and host 8.8.8.8','wireshark (GUI)','traceroute google.com','mtr --report google.com','ipcalc 192.168.1.0/24'],
+    interview:['What happens when you type google.com in a browser?','Explain TCP 3-way handshake','What is the difference between TCP and UDP?'],
+    tips:'Memorize common ports: 22(SSH), 80(HTTP), 443(HTTPS), 3306(MySQL), 5432(PostgreSQL), 6379(Redis)'
+   },
+   {
+    id:'net2', name:'DNS, DHCP & Load Balancing', xp:35,
+    subtopics:['DNS resolution process','Record types: A, AAAA, CNAME, MX, TXT, NS, PTR','TTL and caching','DHCP leases and scopes','Round-robin DNS','GeoDNS routing'],
+    resources:['https://howdns.works/','https://www.cloudflare.com/learning/dns/what-is-dns/'],
+    labs:['Set up a local DNS server with BIND','Trace DNS resolution with dig +trace','Configure split-horizon DNS'],
+    commands:['dig +trace google.com','nslookup -type=MX gmail.com','host -t A cloudflare.com','dig @8.8.8.8 google.com','resolvectl status'],
+    interview:['Explain DNS resolution step by step','What is a CNAME flattening / ALIAS record?','How does DNS TTL affect failover time?'],
+    tips:'`dig +short` gives clean output. `dig +trace` shows the full recursive resolution chain'
+   },
+   {
+    id:'sh1', name:'Bash Scripting Fundamentals', xp:40,
+    subtopics:['Variables, arrays, string manipulation','Conditionals: if/elif/else/case','Loops: for, while, until','Functions and local scope','Exit codes and error handling','Heredocs and process substitution'],
+    resources:['https://www.shellscript.sh/','https://www.gnu.org/software/bash/manual/bash.html','https://www.shellcheck.net/'],
+    labs:['Write a backup script with rotation','Create a health-check script for services','Build a menu-driven sysadmin tool'],
+    commands:['#!/bin/bash\\nset -euo pipefail','[[ "$var" == "val" ]]','for f in *.log; do echo "$f"; done','trap "cleanup" EXIT ERR','$(command substitution)','${var:-default}'],
+    interview:['What does set -euo pipefail do?','How do you handle errors in bash scripts?','Difference between $@ and $*?'],
+    tips:'Always use `shellcheck` to lint your scripts — it catches common bugs before they hit production'
+   },
+   {
+    id:'sh2', name:'Advanced Shell Scripting', xp:45,
+    subtopics:['Regular expressions in scripts','Parallel execution with &','Signal handling with trap','Script configuration files','Here-documents','Parsing arguments with getopts','Logging best practices'],
+    resources:['https://bash.cyberciti.biz/guide/Main_Page','https://betterdev.blog/minimal-safe-bash-script-template/'],
+    labs:['Build a deployment script with rollback','Create a log rotation daemon','Write a parallel backup tool'],
+    commands:['parallel -j4 cmd ::: item1 item2 item3','getopts "vhf:" opt','logger -t myapp "message"','exec > >(tee -a logfile) 2>&1'],
+    interview:['How do you make a bash script idempotent?','Write a script to restart a service if it crashes','How do you lock a script so only one instance runs?'],
+    tips:'Use `mktemp` for temp files and always clean them up with trap — never hardcode /tmp/myfile'
+   },
+   {
+    id:'py1', name:'Python for Cloud & DevOps', xp:50,
+    subtopics:['Python basics: types, functions, OOP','File I/O and JSON/YAML parsing','boto3 AWS SDK','requests library for APIs','argparse for CLI tools','subprocess for system commands','Virtual environments and pip'],
+    resources:['https://boto3.amazonaws.com/v1/documentation/api/latest/index.html','https://docs.python-requests.org/','https://realpython.com/'],
+    labs:['Write a Python script to list S3 buckets','Build an EC2 inventory tool','Create a Slack alerting script'],
+    commands:['pip install boto3 requests pyyaml','python3 -m venv venv && source venv/bin/activate','import boto3; s3 = boto3.client("s3")','json.dumps(data, indent=2)','subprocess.run(["ls","-la"], capture_output=True)'],
+    interview:['What is the GIL in Python?','How do you handle AWS credentials securely in Python?','Difference between boto3 client and resource?'],
+    tips:'Use `python-dotenv` for local secrets and never hardcode credentials — always use env vars or IAM roles'
+   }
+  ]
+ },
+ {
+  id:'ph3', title:'Phase 3: Git, Virtualization & Cloud Fundamentals', difficulty:'Beginner',
+  color:'#ff8c00', weeks:'Week 5', xpTotal:400,
+  topics:[
+   {
+    id:'git1', name:'Git & GitHub Mastery', xp:40,
+    subtopics:['Git internals: blob, tree, commit objects','Branching strategies: GitFlow, trunk-based','Merge vs rebase vs squash','Git hooks','PR reviews and code collaboration','Monorepos vs polyrepos'],
+    resources:['https://learngitbranching.js.org/','https://git-scm.com/book/en/v2','https://www.atlassian.com/git/tutorials'],
+    labs:['Simulate a GitFlow workflow','Resolve a complex merge conflict','Set up pre-commit hooks for linting'],
+    commands:['git log --oneline --graph --all','git rebase -i HEAD~3','git cherry-pick commit','git bisect start','git stash push -m "message"','git reflog','git tag -a v1.0.0 -m "Release"'],
+    interview:['Explain git rebase vs merge and when to use each','What is git reflog used for?','How do you revert a pushed commit?'],
+    tips:'`git bisect` is magic for finding bugs — binary search through commit history'
+   },
+   {
+    id:'virt1', name:'Virtualization & Containers Intro', xp:35,
+    subtopics:['Type 1 vs Type 2 hypervisors','KVM and QEMU','Namespaces and cgroups in Linux','Container vs VM comparison','OCI standards','VMware vSphere basics'],
+    resources:['https://www.redhat.com/en/topics/virtualization','https://man7.org/linux/man-pages/man7/namespaces.7.html'],
+    labs:['Create KVM VM using virsh','Explore Linux namespaces manually','Compare resource usage: VM vs container'],
+    commands:['virsh list --all','unshare --mount --pid --fork bash','lscgroup','cat /proc/self/cgroup','nsenter -t PID -a'],
+    interview:['What is the difference between KVM and Xen?','How do containers achieve isolation without a full OS?','What are cgroups used for?'],
+    tips:'Understanding namespaces and cgroups is critical — Docker is just a nice interface on top of them'
+   },
+   {
+    id:'cloud1', name:'Cloud Computing Fundamentals', xp:40,
+    subtopics:['IaaS, PaaS, SaaS, FaaS models','Cloud economics and TCO','Shared Responsibility Model','Multi-cloud and hybrid cloud','Cloud-native patterns','CapEx vs OpEx','Five pillars of cloud architecture'],
+    resources:['https://aws.amazon.com/what-is-cloud-computing/','https://cloud.google.com/learn/what-is-cloud-computing','https://azure.microsoft.com/en-us/resources/cloud-computing-dictionary/what-is-cloud-computing/'],
+    labs:['Map shared responsibility model for each service type','Calculate cost comparison: on-premise vs cloud','Design a multi-region architecture'],
+    commands:['aws configure','az login','gcloud init','aws sts get-caller-identity'],
+    interview:['Explain the Shared Responsibility Model','When would you choose on-premise over cloud?','What is cloud elasticity vs scalability?'],
+    tips:'The Shared Responsibility Model appears in EVERY cloud interview — know it cold for AWS, Azure, and GCP'
+   }
+  ]
+ },
+ {
+  id:'ph4', title:'Phase 4: AWS Core Services', difficulty:'Intermediate',
+  color:'#ff9900', weeks:'Weeks 6–8', xpTotal:800,
+  topics:[
+   {
+    id:'iam1', name:'IAM — Identity & Access Management', xp:60,
+    subtopics:['Users, Groups, Roles, Policies','Policy types: managed, inline, SCP','Permission boundaries','IAM best practices','Federation: SAML, OIDC','Cross-account access','AWS Organizations and SCPs'],
+    resources:['https://docs.aws.amazon.com/IAM/latest/UserGuide/','https://aws.amazon.com/iam/','https://iam.cloudonaut.io/'],
+    labs:['Create least-privilege policy for S3 access','Set up cross-account role assumption','Configure MFA for root account'],
+    commands:['aws iam list-users','aws iam create-role --trust-policy-document file://trust.json','aws iam attach-role-policy --role-name MyRole --policy-arn arn:aws:iam::aws:policy/ReadOnlyAccess','aws sts assume-role --role-arn arn:... --role-session-name test'],
+    interview:['What is the difference between IAM roles and IAM users?','How does STS token work?','Explain AWS Organizations SCPs vs IAM policies'],
+    tips:'Never use root account — create an admin IAM user immediately and protect root with MFA'
+   },
+   {
+    id:'ec2a', name:'EC2 — Compute Deep Dive', xp:70,
+    subtopics:['Instance types and families (T3, M6, C6, R6, P4)','AMIs and launch templates','Placement groups','EBS volume types (gp3, io2, st1)','Instance lifecycle: pending, running, stopped, terminated','EC2 pricing: on-demand, reserved, spot, savings plans','User data and instance metadata'],
+    resources:['https://docs.aws.amazon.com/ec2/','https://instances.vantage.sh/','https://aws.amazon.com/ec2/instance-types/'],
+    labs:['Launch EC2 with custom user data','Set up EC2 instance connect','Configure detailed monitoring','Run spot instances with interruption handling'],
+    commands:['aws ec2 describe-instances --query "Reservations[].Instances[].{ID:InstanceId,State:State.Name}"','aws ec2 run-instances --image-id ami-xxx --count 1 --instance-type t3.micro','curl http://169.254.169.254/latest/meta-data/','aws ec2 create-snapshot --volume-id vol-xxx'],
+    interview:['When would you use a spot instance?','What is the difference between stop and terminate?','Explain EC2 placement groups and their use cases'],
+    tips:'Use `instances.vantage.sh` to compare instance types by price/performance — saves hours of research'
+   },
+   {
+    id:'s3a', name:'S3 — Storage Deep Dive', xp:65,
+    subtopics:['Bucket policies vs ACLs','Storage classes: S3 Standard, IA, Glacier','S3 Lifecycle policies','S3 versioning and MFA delete','Cross-Region Replication','S3 event notifications','Pre-signed URLs','S3 Transfer Acceleration','Object Lock and WORM'],
+    resources:['https://docs.aws.amazon.com/s3/','https://aws.amazon.com/s3/storage-classes/'],
+    labs:['Host static website on S3','Configure intelligent tiering lifecycle','Set up CRR between two buckets','Generate pre-signed URL with boto3'],
+    commands:['aws s3 sync ./local/ s3://bucket/prefix/','aws s3 cp s3://bucket/file . --sse AES256','aws s3api put-bucket-versioning --bucket mybucket --versioning-configuration Status=Enabled','aws s3 presign s3://bucket/file --expires-in 3600'],
+    interview:['What is S3 eventual consistency model?','How do you secure an S3 bucket?','Explain S3 storage classes and cost optimization'],
+    tips:'Block all public access at the account level — then explicitly allow where needed. Default to private!'
+   },
+   {
+    id:'vpc1', name:'VPC — Networking Deep Dive', xp:80,
+    subtopics:['VPC CIDR planning','Public vs private subnets','Internet Gateway vs NAT Gateway','Route tables and routing','Security Groups (stateful) vs NACLs (stateless)','VPC Peering and Transit Gateway','VPC Endpoints (Interface and Gateway)','Flow Logs','VPN and Direct Connect'],
+    resources:['https://docs.aws.amazon.com/vpc/','https://cidr.xyz/','https://aws.amazon.com/blogs/networking-and-content-delivery/'],
+    labs:['Build 3-tier VPC from scratch (no wizard)','Set up Transit Gateway between 3 VPCs','Configure VPC Flow Logs to S3','Test SG vs NACL behavior'],
+    commands:['aws ec2 create-vpc --cidr-block 10.0.0.0/16','aws ec2 create-subnet --vpc-id vpc-xxx --cidr-block 10.0.1.0/24','aws ec2 create-internet-gateway','aws ec2 create-nat-gateway --subnet-id subnet-xxx --allocation-id eipalloc-xxx'],
+    interview:['Explain the difference between Security Groups and NACLs','When would you use VPC peering vs Transit Gateway?','What is a VPC endpoint and why use one?'],
+    tips:'Plan your VPC CIDR carefully — it cannot be changed after creation. Use /16 for flexibility'
+   },
+   {
+    id:'elb1', name:'Load Balancing & Auto Scaling', xp:75,
+    subtopics:['ALB vs NLB vs CLB','Target groups and health checks','Listener rules and routing','Auto Scaling Groups (ASG)','Launch templates vs configurations','Scaling policies: target tracking, step, scheduled','Lifecycle hooks'],
+    resources:['https://docs.aws.amazon.com/elasticloadbalancing/','https://docs.aws.amazon.com/autoscaling/ec2/userguide/'],
+    labs:['Create ALB with path-based routing','Configure ASG with target tracking on CPU','Test scale-in/out behavior','Set up lifecycle hooks for graceful termination'],
+    commands:['aws elbv2 create-load-balancer --name myalb --type application','aws elbv2 create-target-group --name myTG --protocol HTTP --port 80 --vpc-id vpc-xxx','aws autoscaling create-auto-scaling-group --launch-template LaunchTemplateId=lt-xxx','aws autoscaling put-scaling-policy --policy-type TargetTrackingScaling'],
+    interview:['Difference between ALB and NLB?','How does connection draining work?','What is target tracking scaling and when to use it?'],
+    tips:'Use ALB for HTTP/HTTPS (Layer 7) and NLB for TCP/UDP or ultra-low latency (Layer 4)'
+   },
+   {
+    id:'r53', name:'Route 53 & CloudFront', xp:55,
+    subtopics:['Hosted zones and record types','Routing policies: simple, failover, geolocation, latency, weighted, multivalue','Health checks and DNS failover','CloudFront distributions','Cache behaviors and TTL','Origins: S3, ALB, custom','CloudFront functions and Lambda@Edge','WAF integration'],
+    resources:['https://docs.aws.amazon.com/route53/','https://docs.aws.amazon.com/cloudfront/'],
+    labs:['Configure latency-based routing across regions','Set up CloudFront with S3 origin + OAI','Implement DNS failover between regions'],
+    commands:['aws route53 list-hosted-zones','aws route53 change-resource-record-sets --hosted-zone-id ZXXX','aws cloudfront create-distribution --distribution-config file://dist.json'],
+    interview:['How does Route 53 health check failover work?','What is the difference between CloudFront and a CDN in general?','Explain Alias records vs CNAME in Route 53'],
+    tips:'Alias records are free (no DNS query charge) and work at zone apex — always prefer Alias over CNAME for AWS resources'
+   },
+   {
+    id:'mon1', name:'CloudWatch & Monitoring', xp:60,
+    subtopics:['Metrics, namespaces, dimensions','CloudWatch Logs and Log Insights','Alarms and composite alarms','Dashboards','CloudWatch Events → EventBridge','X-Ray distributed tracing','CloudTrail audit logging','AWS Config for compliance'],
+    resources:['https://docs.aws.amazon.com/cloudwatch/','https://docs.aws.amazon.com/cloudtrail/'],
+    labs:['Create composite alarm for EC2 CPU+Memory','Build CloudWatch dashboard for an app','Query logs with Log Insights','Set up CloudTrail with S3 and SNS alert'],
+    commands:['aws cloudwatch put-metric-alarm --alarm-name CPUHigh --metric-name CPUUtilization','aws logs start-query --log-group-name /var/log/app --query-string "fields @timestamp | filter @message like /ERROR/"','aws cloudwatch get-metric-statistics --namespace AWS/EC2 --metric-name CPUUtilization'],
+    interview:['How do you monitor memory on EC2? (hint: custom metrics)','What is the difference between CloudWatch and CloudTrail?','How do you detect unauthorized API calls?'],
+    tips:'EC2 memory/disk metrics require the CloudWatch agent — they don\'t come by default!'
+   }
+  ]
+ },
+ {
+  id:'ph5', title:'Phase 5: Docker & Kubernetes', difficulty:'Advanced',
+  color:'#0080ff', weeks:'Weeks 9–11', xpTotal:900,
+  topics:[
+   {
+    id:'dock1', name:'Docker Fundamentals', xp:60,
+    subtopics:['Docker architecture: daemon, client, registry','Images, containers, volumes, networks','Dockerfile best practices','Multi-stage builds','Docker Compose','Docker security: rootless, capabilities, seccomp','Docker registry: ECR, Docker Hub'],
+    resources:['https://docs.docker.com/','https://play-with-docker.com/','https://www.docker.com/blog/'],
+    labs:['Write optimized multi-stage Dockerfile for Node.js','Set up Docker Compose for LAMP stack','Scan image with Trivy','Push image to ECR'],
+    commands:['docker build -t myapp:1.0 --no-cache .','docker run -d -p 8080:80 --name myapp --restart always nginx','docker exec -it container bash','docker system prune -af','docker-compose up -d --build','docker inspect container | jq'],
+    interview:['What is the difference between CMD and ENTRYPOINT?','How do you reduce Docker image size?','Explain Docker overlay network'],
+    tips:'Use multi-stage builds to keep production images tiny — build stage can be huge, final stage should be minimal'
+   },
+   {
+    id:'k8s1', name:'Kubernetes Architecture', xp:80,
+    subtopics:['Control plane: API server, etcd, scheduler, controller-manager','Worker nodes: kubelet, kube-proxy, container runtime','Kubernetes objects and API','kubectl basics','Contexts and namespaces','RBAC in Kubernetes'],
+    resources:['https://kubernetes.io/docs/home/','https://killercoda.com/','https://k8s.af/'],
+    labs:['Set up local cluster with minikube/kind','Deploy nginx with Deployment and Service','Configure RBAC for a service account','Inspect etcd data'],
+    commands:['kubectl get pods -A -o wide','kubectl describe pod mypod','kubectl apply -f manifest.yaml','kubectl logs -f deployment/myapp --all-containers','kubectl exec -it pod -- bash','kubectl top nodes','kubectl auth can-i create pods'],
+    interview:['What happens when you run kubectl apply?','How does the scheduler decide where to place a pod?','Explain etcd and why it\'s critical'],
+    tips:'`kubectl explain` is your best friend: `kubectl explain deployment.spec.template.spec.containers`'
+   },
+   {
+    id:'k8s2', name:'Kubernetes Workloads & Networking', xp:85,
+    subtopics:['Pods, ReplicaSets, Deployments','StatefulSets for databases','DaemonSets for system agents','Jobs and CronJobs','Services: ClusterIP, NodePort, LoadBalancer','Ingress and IngressController','Network Policies','CoreDNS and service discovery'],
+    resources:['https://kubernetes.io/docs/concepts/workloads/','https://kubernetes.io/docs/concepts/services-networking/'],
+    labs:['Deploy stateful MySQL with persistent volumes','Configure Nginx Ingress with TLS','Implement network policies to isolate namespaces','Deploy a CronJob for data cleanup'],
+    commands:['kubectl rollout status deployment/myapp','kubectl rollout undo deployment/myapp','kubectl scale deployment myapp --replicas=5','kubectl expose deployment myapp --type=LoadBalancer --port=80','kubectl get ingress','kubectl apply -f networkpolicy.yaml'],
+    interview:['Explain ClusterIP vs NodePort vs LoadBalancer','How do you do rolling updates in Kubernetes?','What are Network Policies and why use them?'],
+    tips:'Rolling updates are default in Deployments — always set maxSurge and maxUnavailable explicitly'
+   },
+   {
+    id:'k8s3', name:'Kubernetes Storage, Config & Security', xp:80,
+    subtopics:['PersistentVolumes and PVCs','StorageClasses and dynamic provisioning','ConfigMaps and Secrets','Resource requests and limits','Pod Security Admission','Horizontal and Vertical Pod Autoscaler','Node affinity and taints/tolerations'],
+    resources:['https://kubernetes.io/docs/concepts/storage/','https://kubernetes.io/docs/concepts/configuration/'],
+    labs:['Configure HPA based on custom metrics','Seal secrets with Sealed Secrets','Set up Pod Disruption Budgets','Configure node affinity for GPU workloads'],
+    commands:['kubectl create secret generic db-pass --from-literal=password=mysecret','kubectl create configmap app-config --from-file=config.yaml','kubectl autoscale deployment myapp --cpu-percent=70 --min=2 --max=10','kubectl taint nodes node1 dedicated=gpu:NoSchedule'],
+    interview:['How are Kubernetes Secrets stored and are they secure?','Explain the difference between resource requests and limits','What is a Pod Disruption Budget?'],
+    tips:'Secrets are only base64-encoded by default — use external secret managers (AWS Secrets Manager, Vault) in production'
+   },
+   {
+    id:'helm1', name:'Helm & Package Management', xp:60,
+    subtopics:['Helm chart structure','Values files and templating','Helm releases and lifecycle','Chart dependencies','Creating custom Helm charts','Helmfile for environments','ArgoCD Helm integration'],
+    resources:['https://helm.sh/docs/','https://artifacthub.io/'],
+    labs:['Install Prometheus stack with Helm','Create a custom Helm chart for your app','Manage multiple environments with Helmfile'],
+    commands:['helm repo add stable https://charts.helm.sh/stable','helm install myrelease chart/ -f values-prod.yaml','helm upgrade --install myapp chart/ --atomic --timeout 5m','helm rollback myapp 1','helm template chart/ | kubectl apply -f -'],
+    interview:['What is Helm and why use it over raw manifests?','How do you handle secrets in Helm?','Explain Helm hooks'],
+    tips:'Use `helm upgrade --install` instead of separate install/upgrade — it\'s idempotent and safe for CI/CD'
+   }
+  ]
+ },
+ {
+  id:'ph6', title:'Phase 6: Terraform & Ansible IaC', difficulty:'Advanced',
+  color:'#7c3aed', weeks:'Weeks 12–13', xpTotal:700,
+  topics:[
+   {
+    id:'tf1', name:'Terraform Fundamentals', xp:65,
+    subtopics:['HCL syntax and data types','Providers, resources, data sources','State management and backends','Terraform workflow: init/plan/apply','Variables, locals, outputs','Terraform Cloud and Workspaces'],
+    resources:['https://developer.hashicorp.com/terraform/tutorials','https://registry.terraform.io/'],
+    labs:['Deploy full AWS VPC with Terraform','Set up remote state in S3 with DynamoDB locking','Import existing resources into Terraform'],
+    commands:['terraform init -upgrade','terraform plan -out=tfplan','terraform apply tfplan','terraform state list','terraform state mv old.resource new.resource','terraform import aws_s3_bucket.example my-bucket','terraform fmt && terraform validate'],
+    interview:['How does Terraform state file work?','What happens if two people run terraform apply simultaneously?','How do you refactor Terraform without destroying resources?'],
+    tips:'NEVER store state files in git — use remote backends (S3+DynamoDB) and enable state locking'
+   },
+   {
+    id:'tf2', name:'Terraform Modules & Advanced', xp:70,
+    subtopics:['Module structure and best practices','Module versioning from registry','Terragrunt for DRY infrastructure','for_each and count meta-arguments','Dynamic blocks','Terraform functions','Lifecycle meta-arguments (prevent_destroy, create_before_destroy)','Sentinel policy as code'],
+    resources:['https://developer.hashicorp.com/terraform/language/modules','https://terragrunt.gruntwork.io/'],
+    labs:['Build a reusable VPC module','Create an EKS cluster module','Write Sentinel policy to prevent public S3 buckets'],
+    commands:['terraform apply -target=module.vpc','module "vpc" { source = "./modules/vpc" version = "~> 2.0" }','for_each = var.environments','lifecycle { prevent_destroy = true }'],
+    interview:['When would you use count vs for_each?','What is Terraform provider aliasing?','How do you test Terraform modules?'],
+    tips:'Use for_each over count for resource identification — index-based references break when you insert new items'
+   },
+   {
+    id:'ans1', name:'Ansible Automation', xp:65,
+    subtopics:['Inventory files (static and dynamic)','Playbooks, plays, tasks, handlers','Roles and Galaxy','Templates with Jinja2','Variables and precedence','Vault for secrets','Molecule for testing roles'],
+    resources:['https://docs.ansible.com/','https://galaxy.ansible.com/','https://www.redhat.com/en/technologies/management/ansible'],
+    labs:['Write playbook to deploy LAMP stack','Create a hardening role for CIS benchmarks','Build dynamic AWS inventory','Test role with Molecule'],
+    commands:['ansible all -m ping -i inventory.ini','ansible-playbook playbook.yml -i inventory --check --diff','ansible-vault encrypt secrets.yml','ansible-galaxy role init myrole','ansible-galaxy collection install amazon.aws'],
+    interview:['What is idempotency in Ansible?','How does Ansible compare to Terraform?','When would you use Ansible over Terraform?'],
+    tips:'Ansible is for configuration management (what\'s ON the servers). Terraform is for provisioning (what servers EXIST)'
+   }
+  ]
+ },
+ {
+  id:'ph7', title:'Phase 7: CI/CD & DevOps Practices', difficulty:'Advanced',
+  color:'#ec4899', weeks:'Weeks 14–15', xpTotal:600,
+  topics:[
+   {
+    id:'gha1', name:'GitHub Actions', xp:60,
+    subtopics:['Workflows, jobs, steps, runners','Events: push, PR, schedule, manual','Secrets and environment variables','Matrix builds','Reusable workflows','Self-hosted runners','GitHub Actions for AWS deployments','OIDC authentication to AWS'],
+    resources:['https://docs.github.com/en/actions','https://github.com/marketplace?type=actions'],
+    labs:['CI pipeline with test, lint, build, push to ECR','Deploy to ECS using GitHub Actions','Matrix testing across Node.js versions','OIDC-based AWS auth'],
+    commands:['on: [push, pull_request]','runs-on: ubuntu-latest','uses: aws-actions/configure-aws-credentials@v4','uses: aws-actions/amazon-ecr-login@v2'],
+    interview:['How does OIDC work with GitHub Actions and AWS?','How do you prevent secrets from being exposed in logs?','What is the difference between jobs and steps?'],
+    tips:'Use OIDC instead of IAM access keys in GitHub Actions — it\'s more secure and no key rotation needed'
+   },
+   {
+    id:'jenk1', name:'Jenkins Pipeline as Code', xp:55,
+    subtopics:['Declarative vs scripted pipelines','Jenkinsfile syntax','Stages, steps, post conditions','Jenkins agents and distributed builds','Shared libraries','Blue Ocean UI','Jenkins X for Kubernetes'],
+    resources:['https://www.jenkins.io/doc/book/pipeline/','https://www.jenkins.io/doc/book/pipeline/shared-libraries/'],
+    labs:['Build full CI pipeline in Jenkinsfile','Set up Jenkins on Kubernetes','Create a shared library for common steps'],
+    commands:['pipeline { agent any; stages { stage("Build") { steps { sh "mvn clean package" } } } }','docker.image("maven:3.8").inside {}','withCredentials([string(credentialsId: "my-secret")])'],
+    interview:['What is the difference between declarative and scripted pipeline?','How do you trigger a Jenkins job from another job?','How do you handle secrets in Jenkins?'],
+    tips:'Use declarative pipelines — they\'re more readable and have better IDE support than scripted pipelines'
+   },
+   {
+    id:'cicd2', name:'Container-based CI/CD & GitOps', xp:65,
+    subtopics:['GitOps principles','ArgoCD application lifecycle','Flux CD','Image update automation','Progressive delivery: Canary, Blue/Green','Argo Rollouts','Feature flags with LaunchDarkly/Unleash'],
+    resources:['https://argo-cd.readthedocs.io/','https://fluxcd.io/','https://www.gitops.tech/'],
+    labs:['Deploy ArgoCD and create first Application','Configure automated sync with health checks','Implement canary deployment with Argo Rollouts'],
+    commands:['argocd app create myapp --repo https://github.com/xxx --path k8s/','argocd app sync myapp','kubectl argo rollouts get rollout myapp --watch','kubectl argo rollouts promote myapp'],
+    interview:['What is GitOps and how does it differ from traditional CI/CD?','How does ArgoCD handle drift detection?','Explain canary vs blue/green deployment'],
+    tips:'GitOps is the gold standard for Kubernetes deployments — ArgoCD is dominant in the market right now'
+   }
+  ]
+ },
+ {
+  id:'ph8', title:'Phase 8: SRE, Security & System Design', difficulty:'Expert',
+  color:'#ef4444', weeks:'Weeks 16–18', xpTotal:1000,
+  topics:[
+   {
+    id:'obs1', name:'Observability & SRE Practices', xp:80,
+    subtopics:['SLI, SLO, SLA definitions','Error budgets','The 4 golden signals (latency, traffic, errors, saturation)','OpenTelemetry standard','Prometheus & Grafana stack','Alertmanager routing','Loki for logs','Jaeger/Tempo for tracing','Incident management and runbooks'],
+    resources:['https://sre.google/sre-book/table-of-contents/','https://prometheus.io/docs/','https://grafana.com/docs/'],
+    labs:['Deploy Prometheus+Grafana with Helm','Create SLO-based alerts','Build end-to-end distributed trace','Write a runbook for database failover'],
+    commands:['promtool check rules alerts.yml','kubectl port-forward svc/prometheus 9090','rate(http_requests_total{status=~"5.."}[5m])','histogram_quantile(0.99, rate(request_duration_bucket[5m]))'],
+    interview:['What is an error budget and how do you use it?','Explain the 4 golden signals','How do you reduce alert fatigue?'],
+    tips:'SLOs should be set BELOW what you actually achieve — you need error budget to deploy safely'
+   },
+   {
+    id:'sec1', name:'Cloud Security & DevSecOps', xp:90,
+    subtopics:['Zero Trust architecture','AWS Security Hub and GuardDuty','Container scanning: Trivy, Snyk','SAST/DAST in CI/CD','Secrets management: HashiCorp Vault, AWS Secrets Manager','Network security: WAF, Shield, Firewall Manager','CIS Benchmarks','SOC2/PCI compliance basics','Penetration testing methodology'],
+    resources:['https://docs.aws.amazon.com/securityhub/','https://aquasecurity.github.io/trivy/','https://www.vaultproject.io/docs'],
+    labs:['Enable GuardDuty and triage findings','Integrate Trivy into CI/CD pipeline','Set up Vault dynamic secrets for RDS','Run CIS benchmark scan with AWS Config'],
+    commands:['trivy image --severity HIGH,CRITICAL myapp:latest','aws guardduty list-findings --detector-id xxx','vault secrets enable database','vault write database/config/mydb plugin_name=postgresql-database-plugin'],
+    interview:['What is the principle of least privilege?','How do you detect a compromised container?','Explain OIDC-based service authentication'],
+    tips:'Shift security LEFT — run SAST in PRs, image scans in CI, and DAST in staging. Not just before production!'
+   },
+   {
+    id:'sysdes', name:'System Design for Cloud', xp:100,
+    subtopics:['CAP theorem and consistency models','Horizontal vs vertical scaling','Database sharding and replication','Caching strategies: CDN, Redis, Memcached','Message queues: SQS, Kafka, RabbitMQ','Event-driven architecture','Microservices patterns: saga, CQRS, circuit breaker','Rate limiting and throttling','Disaster recovery: RPO and RTO'],
+    resources:['https://github.com/donnemartin/system-design-primer','https://aws.amazon.com/architecture/','https://engineering.atspotify.com/'],
+    labs:['Design a URL shortener with 100M requests/day','Architect a multi-region active-active setup','Design a real-time notifications system','Build a rate limiter with Redis'],
+    commands:['Design on paper first — always','Estimate QPS, storage, bandwidth','Think in layers: CDN → LB → App → Cache → DB'],
+    interview:['Design Twitter\'s feed system','Design a distributed rate limiter','How would you migrate a monolith to microservices?'],
+    tips:'In interviews: start with requirements, estimate scale, design for the bottleneck, then optimize'
+   },
+   {
+    id:'dr1', name:'High Availability & Disaster Recovery', xp:85,
+    subtopics:['Multi-AZ and Multi-Region architectures','RTO and RPO definitions','Backup strategies: 3-2-1 rule','AWS Backup service','Route 53 DNS failover','RDS Multi-AZ and Read Replicas','Chaos engineering with Chaos Monkey','DR patterns: backup/restore, pilot light, warm standby, active-active'],
+    resources:['https://aws.amazon.com/disaster-recovery/','https://docs.aws.amazon.com/prescriptive-guidance/latest/backup-recovery/backup-recovery.pdf'],
+    labs:['Test failover for RDS Multi-AZ','Set up Route 53 health check failover','Simulate AZ failure in k8s cluster','Define and test RTO/RPO for an app'],
+    commands:['aws rds failover-db-cluster --db-cluster-identifier mydb','aws backup start-backup-job --backup-vault-name Default --resource-arn arn:aws:rds:...','aws route53 get-health-check-status --health-check-id xxx'],
+    interview:['What is the difference between RPO and RTO?','Compare the 4 DR strategies and their costs','How do you test a DR plan?'],
+    tips:'Test your DR plan quarterly — untested DR is not DR. Simulate failures in production during business hours'
+   },
+   {
+    id:'cost1', name:'Cost Optimization & FinOps', xp:70,
+    subtopics:['AWS Cost Explorer and Budgets','Reserved Instances vs Savings Plans','Spot instance strategies','Right-sizing with Compute Optimizer','S3 Intelligent Tiering','Data transfer cost patterns','Tagging strategy for cost allocation','FinOps maturity model'],
+    resources:['https://aws.amazon.com/aws-cost-management/','https://www.finops.org/','https://cloudoptimizer.io/'],
+    labs:['Set up budget alerts for accounts','Identify and remove idle resources','Calculate RI vs On-Demand break-even','Build cost dashboard in CloudWatch'],
+    commands:['aws ce get-cost-and-usage --time-period Start=2024-01-01,End=2024-02-01 --granularity MONTHLY --metrics BlendedCost','aws compute-optimizer get-ec2-instance-recommendations','aws ec2 describe-instances --query "Reservations[].Instances[?State.Name==\'stopped\']"'],
+    interview:['How do you reduce AWS costs by 40%?','What is the difference between Reserved Instances and Savings Plans?','How do you implement chargeback in a multi-team org?'],
+    tips:'Savings Plans give the same discount as Reserved Instances but with more flexibility — prefer them for new workloads'
+   }
+  ]
+ }
+];
+
+const DAILY_PLAN = [
+ {day:1,week:1,phase:'Phase 1',topic:'Linux Introduction',subtopics:['Shell navigation','Filesystem structure'],theory:'Linux history, distros, architecture',practical:'Navigate terminal only for 1 hour',labs:['Linux Journey Level 1','OverTheWire Bandit 0-2'],commands:['pwd','ls -la','cd','mkdir','rmdir'],challenge:'Map /etc directory structure without GUI',time:{theory:60,practical:90,review:30},color:'#00ff88'},
+ {day:2,week:1,phase:'Phase 1',topic:'File Operations',subtopics:['File manipulation','Text editors'],theory:'File system operations, text processing basics',practical:'Create complex directory structures',labs:['Bandit 3-7'],commands:['cat','touch','cp','mv','rm','nano','vim'],challenge:'Create a file tree mimicking a web project',time:{theory:45,practical:100,review:35},color:'#00ff88'},
+ {day:3,week:1,phase:'Phase 1',topic:'Users & Permissions',subtopics:['chmod','chown','sudo'],theory:'Linux security model, user management',practical:'Create users and set up permission scenarios',labs:['Linux Journey Permissions','TryHackMe Linux Fundamentals 1'],commands:['useradd','chmod','chown','sudo','visudo','groups'],challenge:'Set up a shared project directory with group permissions',time:{theory:60,practical:90,review:30},color:'#00ff88'},
+ {day:4,week:1,phase:'Phase 1',topic:'Process Management',subtopics:['systemctl','cron','signals'],theory:'Process lifecycle, signals, services',practical:'Manage system services and create a cron job',labs:['TryHackMe Linux Fundamentals 2'],commands:['ps aux','top','kill','systemctl','crontab -e','jobs','bg','fg'],challenge:'Write a cron job that checks disk usage and alerts',time:{theory:50,practical:100,review:30},color:'#00ff88'},
+ {day:5,week:1,phase:'Phase 1',topic:'Text Processing',subtopics:['grep','awk','sed','pipes'],theory:'Stream editors, regular expressions, data extraction',practical:'Analyze log files using grep, awk, sed pipelines',labs:['Regex tutorial','Log analysis challenge'],commands:['grep -rn','awk -F','sed -i','sort | uniq -c','cut -d:','xargs'],challenge:'Extract top 10 IPs from an apache access.log',time:{theory:60,practical:90,review:30},color:'#00ff88'},
+ {day:6,week:1,phase:'Phase 1',topic:'SSH & Networking Commands',subtopics:['SSH keys','SCP','rsync','netstat'],theory:'SSH protocol, key auth, remote file transfer',practical:'Set up SSH key-based auth between two VMs',labs:['SSH Lab'],commands:['ssh-keygen -t ed25519','ssh-copy-id','scp -r','rsync -avz','ss -tunlp','nmap -sV'],challenge:'Configure SSH to disable password auth completely',time:{theory:45,practical:100,review:35},color:'#00ff88'},
+ {day:7,week:1,phase:'Phase 1',topic:'Week 1 Revision & Mini Project',subtopics:['Review all commands','Build sysadmin script'],theory:'Review all Week 1 concepts',practical:'Build a system info script from scratch',labs:['OverTheWire Bandit 0-15 review'],commands:['All week 1 commands'],challenge:'Build a bash script that monitors CPU, Memory, Disk and emails alert',time:{theory:30,practical:120,review:30},color:'#00ff88'},
+ {day:8,week:2,phase:'Phase 1',topic:'Storage & Package Management',subtopics:['LVM','fdisk','apt/yum'],theory:'Disk management, LVM concepts, package managers',practical:'Create and manage logical volumes',labs:['LVM Lab'],commands:['fdisk','lvcreate','vgcreate','pvcreate','apt','yum','rpm'],challenge:'Extend a logical volume online without downtime',time:{theory:60,practical:90,review:30},color:'#00ff88'},
+ {day:9,week:2,phase:'Phase 1',topic:'Shell Scripting Basics',subtopics:['Variables','Conditionals','Loops'],theory:'Bash scripting fundamentals, best practices',practical:'Write 5 practical scripts',labs:['Shell Scripting Tutorial'],commands:['#!/bin/bash','if/then/fi','for/while','functions','$?','set -euo pipefail'],challenge:'Write a script to backup /etc and rotate old backups',time:{theory:45,practical:105,review:30},color:'#00ff88'},
+ {day:10,week:2,phase:'Phase 1',topic:'Advanced Shell Scripting',subtopics:['Error handling','Logging','Arguments'],theory:'Production-grade scripting patterns',practical:'Rewrite all previous scripts with error handling',labs:['Advanced Bash scripting guide'],commands:['trap','getopts','logger','exec >','tee','mktemp'],challenge:'Add full logging and error handling to your backup script',time:{theory:45,practical:105,review:30},color:'#00ff88'},
+ {day:11,week:2,phase:'Phase 1',topic:'Networking Fundamentals',subtopics:['OSI model','TCP/IP','Subnetting'],theory:'Network protocols, IP addressing, routing',practical:'Subnet calculations and packet analysis',labs:['Packet Tracer simulation','Subnetting practice'],commands:['ip addr','ip route','tcpdump','netstat','ss','arp','ping -c','traceroute'],challenge:'Design a network with 5 subnets from 192.168.10.0/24',time:{theory:80,practical:80,review:20},color:'#00d4ff'},
+ {day:12,week:2,phase:'Phase 1',topic:'DNS & HTTP',subtopics:['DNS resolution','HTTP/HTTPS','TLS'],theory:'How DNS works, HTTP methods, TLS handshake',practical:'Trace DNS queries and inspect HTTP traffic',labs:['DNS Lab','HTTP Headers exercise'],commands:['dig +trace','nslookup','curl -v','openssl s_client','wget'],challenge:'Set up a local DNS resolver with custom records',time:{theory:60,practical:90,review:30},color:'#00d4ff'},
+ {day:13,week:2,phase:'Phase 1',topic:'Firewalls & Security',subtopics:['iptables','ufw','fail2ban'],theory:'Linux firewall concepts, packet filtering',practical:'Build a firewall ruleset for a web server',labs:['iptables Lab','fail2ban setup'],commands:['iptables -L -n -v','ufw enable','ufw allow 22/tcp','fail2ban-client status','nmap -Pn'],challenge:'Harden an EC2 instance with iptables rules',time:{theory:60,practical:90,review:30},color:'#00d4ff'},
+ {day:14,week:2,phase:'Phase 1',topic:'Python Basics for DevOps',subtopics:['Variables','Functions','File I/O','JSON'],theory:'Python syntax, data types, standard library',practical:'Write Python scripts replacing bash scripts',labs:['Python.org tutorial','Automate the Boring Stuff'],commands:['python3 -m venv venv','pip install','import json','import subprocess','import os'],challenge:'Port your backup bash script to Python with better error handling',time:{theory:60,practical:90,review:30},color:'#ff8c00'},
+ {day:15,week:3,phase:'Phase 2',topic:'Git Fundamentals',subtopics:['Commits','Branches','Merging'],theory:'Git internals, workflow strategies',practical:'Set up a Git repo with branching workflow',labs:['learngitbranching.js.org','GitHub tutorial'],commands:['git init','git add -p','git commit -m','git branch','git merge','git log --graph','git stash'],challenge:'Simulate a GitFlow feature development cycle',time:{theory:45,practical:105,review:30},color:'#ff8c00'},
+ {day:16,week:3,phase:'Phase 2',topic:'GitHub Actions CI',subtopics:['Workflows','Jobs','Secrets'],theory:'GitHub Actions architecture and YAML syntax',practical:'Build a CI pipeline for a Python project',labs:['GitHub Actions documentation'],commands:['on: push:','jobs: build:','steps: - uses:','secrets.GITHUB_TOKEN'],challenge:'Build CI that tests, lints, and builds Docker image on every PR',time:{theory:60,practical:90,review:30},color:'#ff8c00'},
+ {day:17,week:3,phase:'Phase 2',topic:'Docker Introduction',subtopics:['Images','Containers','Dockerfile'],theory:'Container architecture, Docker components',practical:'Containerize a Python Flask app',labs:['Play with Docker','Docker tutorial'],commands:['docker build','docker run','docker ps','docker logs','docker exec -it','docker-compose up'],challenge:'Containerize a 3-tier app (Python+Redis+Nginx)',time:{theory:45,practical:105,review:30},color:'#0080ff'},
+ {day:18,week:3,phase:'Phase 2',topic:'Cloud Computing Concepts',subtopics:['IaaS/PaaS/SaaS','Shared Responsibility','Cloud economics'],theory:'Cloud models, providers comparison, pricing basics',practical:'Explore AWS console and pricing calculator',labs:['AWS Skill Builder','Cloud Practitioner prep'],commands:['aws configure','aws sts get-caller-identity','aws s3 ls'],challenge:'Calculate total cost for running your app on AWS for 1 year',time:{theory:90,practical:60,review:30},color:'#ff9900'},
+ {day:19,week:3,phase:'Phase 3',topic:'AWS IAM Deep Dive',subtopics:['Policies','Roles','Federation'],theory:'IAM policy language, least privilege principle',practical:'Create policies from scratch using policy simulator',labs:['IAM Policy Simulator','AWS Workshop IAM'],commands:['aws iam create-policy','aws iam simulate-principal-policy','aws sts assume-role'],challenge:'Design IAM roles for a 3-tier web application',time:{theory:60,practical:90,review:30},color:'#ff9900'},
+ {day:20,week:3,phase:'Phase 3',topic:'EC2 & VPC Basics',subtopics:['Launch EC2','VPC setup','Security Groups'],theory:'EC2 instance types, VPC networking fundamentals',practical:'Launch EC2 in custom VPC with proper networking',labs:['AWS free tier EC2 lab','VPC workshop'],commands:['aws ec2 run-instances','aws ec2 create-vpc','aws ec2 create-security-group'],challenge:'Build a 2-tier VPC with public web tier and private app tier',time:{theory:60,practical:90,review:30},color:'#ff9900'},
+ {day:21,week:3,phase:'Phase 3',topic:'S3 & Storage Services',subtopics:['Buckets','Policies','Lifecycle'],theory:'S3 storage classes, data protection, access control',practical:'Build a secure S3-based static website',labs:['S3 Hands-On Lab'],commands:['aws s3 sync','aws s3 presign','aws s3api put-bucket-policy'],challenge:'Set up S3 with versioning, lifecycle, and CloudFront',time:{theory:45,practical:105,review:30},color:'#ff9900'},
+ {day:22,week:4,phase:'Phase 3',topic:'VPC Advanced Networking',subtopics:['NAT Gateway','Transit Gateway','VPN'],theory:'Advanced VPC components, inter-VPC connectivity',practical:'Build multi-tier VPC with Transit Gateway',labs:['AWS VPC Workshop'],commands:['aws ec2 create-nat-gateway','aws ec2 create-transit-gateway','aws ec2 create-vpn-connection'],challenge:'Connect 3 VPCs using Transit Gateway with route isolation',time:{theory:75,practical:90,review:15},color:'#ff9900'},
+ {day:23,week:4,phase:'Phase 3',topic:'Load Balancing & Auto Scaling',subtopics:['ALB/NLB','Target Groups','ASG'],theory:'Load balancing algorithms, auto scaling strategies',practical:'Build HA web tier with ALB and ASG',labs:['ELB Workshop','ASG Lab'],commands:['aws elbv2 create-load-balancer','aws autoscaling create-auto-scaling-group','aws autoscaling put-scaling-policy'],challenge:'Implement blue/green deployment using ALB target groups',time:{theory:60,practical:90,review:30},color:'#ff9900'},
+ {day:24,week:4,phase:'Phase 3',topic:'CloudWatch & Monitoring',subtopics:['Metrics','Alarms','Logs','Dashboards'],theory:'Observability in AWS, log analysis, alerting',practical:'Build a monitoring dashboard for your EC2 app',labs:['CloudWatch Labs'],commands:['aws cloudwatch put-metric-alarm','aws logs create-log-group','aws cloudwatch put-dashboard'],challenge:'Set up alerts for CPU, memory, disk, and 5xx errors',time:{theory:60,practical:90,review:30},color:'#ff9900'},
+ {day:25,week:4,phase:'Phase 3',topic:'Route 53 & CloudFront',subtopics:['DNS routing policies','CloudFront CDN','SSL/TLS'],theory:'DNS routing strategies, CDN architecture',practical:'Set up CloudFront + S3 with custom domain',labs:['Route 53 Lab','CloudFront Workshop'],commands:['aws route53 change-resource-record-sets','aws cloudfront create-distribution'],challenge:'Implement latency-based routing to 2 EC2 instances in different regions',time:{theory:60,practical:90,review:30},color:'#ff9900'},
+ {day:26,week:4,phase:'Phase 3',topic:'RDS & Database Services',subtopics:['RDS Multi-AZ','Aurora','DynamoDB basics'],theory:'Managed database options, replication, backup',practical:'Launch RDS Aurora with read replicas',labs:['RDS Workshop','DynamoDB Lab'],commands:['aws rds create-db-instance','aws rds create-db-cluster','aws dynamodb create-table'],challenge:'Design a database tier with automatic failover and read scaling',time:{theory:60,practical:90,review:30},color:'#ff9900'},
+ {day:27,week:4,phase:'Phase 3',topic:'Serverless: Lambda & API Gateway',subtopics:['Lambda functions','API Gateway','SAM/CDK'],theory:'Serverless architecture, event-driven design',practical:'Build a serverless REST API with Lambda',labs:['AWS Lambda Workshop','SAM Tutorial'],commands:['sam init','sam build && sam deploy','aws lambda invoke','aws apigateway create-rest-api'],challenge:'Build a URL shortener with Lambda + DynamoDB + API Gateway',time:{theory:60,practical:90,review:30},color:'#ff9900'},
+ {day:28,week:4,phase:'Phase 3',topic:'AWS Week Review & Project',subtopics:['Architecture review','Cost optimization','Security audit'],theory:'Review all AWS services covered',practical:'Build a production-grade 3-tier app on AWS',labs:['AWS Well-Architected Review'],commands:['All AWS CLI commands practiced'],challenge:'Deploy a full web app: ALB + EC2 ASG + RDS + CloudFront + Route53',time:{theory:30,practical:150,review:0},color:'#ff9900'},
+ {day:29,week:5,phase:'Phase 4',topic:'Docker Advanced',subtopics:['Multi-stage builds','Docker Compose','Networking'],theory:'Container optimization, orchestration basics',practical:'Build production-grade Dockerfiles',labs:['Play with Docker advanced'],commands:['docker build --target production','docker-compose -f docker-compose.prod.yml up','docker network create','docker volume create'],challenge:'Optimize a Docker image from 1GB to under 100MB',time:{theory:45,practical:105,review:30},color:'#0080ff'},
+ {day:30,week:5,phase:'Phase 4',topic:'Kubernetes Introduction',subtopics:['Architecture','kubectl','Pods'],theory:'Kubernetes components and core concepts',practical:'Set up local Kubernetes and deploy first pod',labs:['Killercoda k8s labs','minikube tutorial'],commands:['minikube start','kubectl apply -f','kubectl get pods','kubectl describe','kubectl logs'],challenge:'Deploy a multi-container pod with sidecar pattern',time:{theory:75,practical:90,review:15},color:'#0080ff'},
+ {day:31,week:5,phase:'Phase 4',topic:'Kubernetes Deployments & Services',subtopics:['Deployments','Services','Ingress'],theory:'Workload management, service discovery, external access',practical:'Deploy a microservice application on Kubernetes',labs:['Kubernetes tutorial'],commands:['kubectl create deployment','kubectl expose deployment','kubectl apply -f ingress.yaml','kubectl rollout status'],challenge:'Deploy 3 microservices with proper routing and health checks',time:{theory:60,practical:90,review:30},color:'#0080ff'},
+ {day:32,week:5,phase:'Phase 4',topic:'Kubernetes Storage & Config',subtopics:['PVCs','ConfigMaps','Secrets','HPA'],theory:'State management in Kubernetes',practical:'Deploy stateful PostgreSQL with persistent storage',labs:['K8s storage lab'],commands:['kubectl create secret','kubectl create configmap','kubectl autoscale deployment','kubectl get pvc'],challenge:'Deploy a full web app with DB using PVC, Secrets, and HPA',time:{theory:60,practical:90,review:30},color:'#0080ff'},
+ {day:33,week:5,phase:'Phase 4',topic:'EKS — Kubernetes on AWS',subtopics:['EKS cluster setup','IAM roles for service accounts','ALB Ingress Controller'],theory:'Managed Kubernetes on AWS, IRSA, cluster networking',practical:'Deploy EKS cluster with Terraform and deploy app',labs:['EKS Workshop'],commands:['eksctl create cluster','aws eks update-kubeconfig','kubectl annotate serviceaccount','helm install aws-load-balancer-controller'],challenge:'Deploy a production app on EKS with IRSA and ALB Ingress',time:{theory:75,practical:90,review:15},color:'#0080ff'},
+ {day:34,week:5,phase:'Phase 4',topic:'Helm Charts',subtopics:['Helm basics','Custom charts','Helmfile'],theory:'Package management for Kubernetes',practical:'Create custom Helm chart for your application',labs:['Helm tutorial'],commands:['helm create mychart','helm template','helm upgrade --install','helm test'],challenge:'Package and deploy your entire 3-tier app with a single Helm chart',time:{theory:45,practical:105,review:30},color:'#0080ff'},
+ {day:35,week:6,phase:'Phase 5',topic:'Terraform Fundamentals',subtopics:['HCL syntax','State','Providers'],theory:'Infrastructure as Code concepts, Terraform workflow',practical:'Deploy full AWS VPC with Terraform',labs:['Terraform official tutorials'],commands:['terraform init','terraform plan','terraform apply','terraform destroy','terraform state list'],challenge:'Terraform a complete 3-tier AWS architecture',time:{theory:60,practical:90,review:30},color:'#7c3aed'},
+ {day:36,week:6,phase:'Phase 5',topic:'Terraform Modules & State',subtopics:['Modules','Remote state','Workspaces'],theory:'Terraform module design, state management patterns',practical:'Build reusable VPC and EC2 modules',labs:['Terraform Registry'],commands:['module "vpc" {}','terraform workspace new staging','terraform state mv','backend "s3" {}'],challenge:'Build a Terraform module that creates an entire EKS cluster',time:{theory:60,practical:90,review:30},color:'#7c3aed'},
+ {day:37,week:6,phase:'Phase 5',topic:'Ansible Automation',subtopics:['Inventory','Playbooks','Roles'],theory:'Configuration management, idempotency',practical:'Write Ansible playbooks to configure servers',labs:['Ansible documentation'],commands:['ansible-playbook -i inventory','ansible-galaxy init','ansible-vault encrypt','ansible --check --diff'],challenge:'Write a complete server hardening playbook',time:{theory:60,practical:90,review:30},color:'#7c3aed'},
+ {day:38,week:6,phase:'Phase 5',topic:'CI/CD with GitHub Actions',subtopics:['Workflows','Docker build','Deploy to EKS'],theory:'Full CI/CD pipeline design',practical:'Build end-to-end pipeline from code to production',labs:['GitHub Actions Workshop'],commands:['on: push: branches: [main]','docker/build-push-action@v5','aws-actions/amazon-eks-update-kubeconfig@v1'],challenge:'Build a pipeline: test → build Docker → push ECR → deploy EKS',time:{theory:45,practical:105,review:30},color:'#ec4899'},
+ {day:39,week:6,phase:'Phase 5',topic:'Prometheus & Grafana',subtopics:['PromQL','Dashboards','Alerting'],theory:'Metrics-based observability, alerting strategies',practical:'Deploy full monitoring stack with Helm',labs:['Grafana Labs'],commands:['helm install prometheus prometheus-community/kube-prometheus-stack','kubectl port-forward svc/grafana 3000','rate(http_requests_total[5m])'],challenge:'Build an SLO-based dashboard with burn rate alerts',time:{theory:60,practical:90,review:30},color:'#ef4444'},
+ {day:40,week:6,phase:'Phase 5',topic:'Security & DevSecOps',subtopics:['Image scanning','RBAC','Secrets management'],theory:'Security in DevOps pipeline, shift-left practices',practical:'Add security scanning to CI pipeline',labs:['Trivy docs','HashiCorp Vault'],commands:['trivy image --exit-code 1 --severity CRITICAL','vault operator init','vault secrets enable aws'],challenge:'Implement full DevSecOps pipeline with automated security gates',time:{theory:60,practical:90,review:30},color:'#ef4444'},
+ {day:41,week:7,phase:'Phase 6',topic:'System Design Fundamentals',subtopics:['Scalability patterns','CAP theorem','Design trade-offs'],theory:'System design methodology, back-of-envelope estimation',practical:'Practice designing 3 common systems',labs:['System Design Primer GitHub'],commands:['Design on paper','Scale calculations','Architecture diagrams'],challenge:'Design a system to handle 10M users with 99.99% availability',time:{theory:90,practical:90,review:0},color:'#ef4444'},
+ {day:42,week:7,phase:'Phase 6',topic:'Interview Preparation & Mock',subtopics:['Behavioral questions','Technical scenarios','Live coding'],theory:'STAR format, cloud architecture interviews',practical:'Mock interview session with timer',labs:['Pramp','Interviewing.io'],commands:['Practice STAR stories','Draw architectures','Debug scripts live'],challenge:'Complete 1 full mock interview covering Linux + AWS + K8s',time:{theory:30,practical:150,review:0},color:'#ef4444'}
+];
+
+const QUIZ_DATA = {
+ linux:[
+  {q:'What command shows all running processes as a tree?',opts:['ps aux','pstree','top -t','ps -ef'],ans:1,exp:'`pstree` shows processes in a hierarchical tree. `ps auxf` also shows ASCII tree format.'},
+  {q:'Which signal gracefully terminates a process?',opts:['SIGKILL (9)','SIGSTOP (19)','SIGTERM (15)','SIGHUP (1)'],ans:2,exp:'SIGTERM (15) is the graceful termination signal. The process can catch it and clean up. SIGKILL (9) cannot be caught.'},
+  {q:'What does `chmod 644 file.txt` set?',opts:['rwxr--r--','rw-r--r--','rw-rw-r--','r--r--r--'],ans:1,exp:'644 = owner: rw- (6), group: r-- (4), others: r-- (4). Binary: 110 100 100.'},
+  {q:'Which file stores hashed user passwords?',opts:['/etc/passwd','/etc/shadow','/etc/users','/etc/security'],ans:1,exp:'/etc/shadow stores hashed passwords with expiry info. /etc/passwd stores user info but no passwords (just "x" placeholder).'},
+  {q:'What does `set -e` do in a bash script?',opts:['Sets exit code to 0','Exits on first error','Enables debug mode','Sets environment'],ans:1,exp:'`set -e` causes the script to exit immediately if any command returns a non-zero exit status. Critical for safe scripts.'}
+ ],
+ networking:[
+  {q:'Which OSI layer does IP operate at?',opts:['Layer 2 - Data Link','Layer 3 - Network','Layer 4 - Transport','Layer 7 - Application'],ans:1,exp:'IP operates at Layer 3 (Network). TCP/UDP are Layer 4. Ethernet is Layer 2. HTTP is Layer 7.'},
+  {q:'What record type maps a hostname to an IPv4 address?',opts:['CNAME','MX','A','PTR'],ans:2,exp:'A record maps hostname to IPv4. AAAA maps to IPv6. CNAME is an alias. PTR is reverse DNS.'},
+  {q:'How many usable hosts in a /27 subnet?',opts:['14','30','62','126'],ans:1,exp:'/27 = 32 addresses, minus 2 (network + broadcast) = 30 usable hosts.'},
+  {q:'Which TCP flag is used to initiate a connection?',opts:['ACK','FIN','SYN','RST'],ans:2,exp:'SYN (synchronize) starts the 3-way handshake. The sequence is SYN → SYN-ACK → ACK.'},
+  {q:'What is the default SSH port?',opts:['21','22','23','25'],ans:1,exp:'SSH defaults to port 22. FTP=21, Telnet=23, SMTP=25, HTTP=80, HTTPS=443.'}
+ ],
+ aws:[
+  {q:'Which IAM entity is best for granting AWS service access to applications?',opts:['IAM User','IAM Group','IAM Role','IAM Policy'],ans:2,exp:'IAM Roles are designed for AWS services (EC2, Lambda, etc.) — they use temporary credentials via STS. Never use IAM users in applications.'},
+  {q:'What is the maximum size of a single S3 object?',opts:['5 GB','5 TB','1 TB','100 GB'],ans:1,exp:'S3 objects can be up to 5 TB. Objects over 5 GB require multipart upload.'},
+  {q:'Which VPC component allows outbound internet from private subnets?',opts:['Internet Gateway','NAT Gateway','VPC Peering','Virtual Private Gateway'],ans:1,exp:'NAT Gateway allows outbound internet from private subnets while blocking unsolicited inbound. Internet Gateway is bidirectional and attached to public subnets.'},
+  {q:'What is the difference between Security Groups and NACLs?',opts:['SGs are stateful, NACLs are stateless','SGs work on VPCs, NACLs on subnets','NACLs are stateful, SGs are stateless','They are the same'],ans:0,exp:'Security Groups are stateful (return traffic auto-allowed). NACLs are stateless (must explicitly allow both directions). SGs apply to instances, NACLs to subnets.'},
+  {q:'Which ALB feature routes requests based on URL path?',opts:['Host-based routing','Path-based routing','Header-based routing','Method-based routing'],ans:1,exp:'Path-based routing in ALB routes /api/* to one target group and /static/* to another. Host-based routing uses different hostnames.'}
+ ],
+ kubernetes:[
+  {q:'Which Kubernetes object ensures exactly N replicas of a pod always run?',opts:['DaemonSet','StatefulSet','ReplicaSet','Job'],ans:2,exp:'ReplicaSet ensures a specified number of pod replicas are running. Deployments manage ReplicaSets. DaemonSet runs one pod per node. StatefulSet is for stateful apps.'},
+  {q:'What is the default service type in Kubernetes?',opts:['LoadBalancer','NodePort','ClusterIP','ExternalName'],ans:2,exp:'ClusterIP is the default — it creates an internal cluster IP. LoadBalancer provisions a cloud LB. NodePort exposes on each node\'s IP.'},
+  {q:'Which component maintains the desired state in Kubernetes?',opts:['kubelet','kube-proxy','controller-manager','kube-scheduler'],ans:2,exp:'The controller-manager runs control loops to maintain desired state. The scheduler assigns pods to nodes. kubelet runs on worker nodes to manage pods.'},
+  {q:'How do you access a container in a running pod?',opts:['kubectl ssh pod','kubectl exec -it pod -- bash','kubectl connect pod','docker exec pod'],ans:1,exp:'`kubectl exec -it pod -- bash` opens an interactive shell inside a container. Add `-c container-name` for multi-container pods.'},
+  {q:'What is the purpose of a Kubernetes Namespace?',opts:['Network isolation','Virtual clusters for resource isolation','Storage partitioning','Node grouping'],ans:1,exp:'Namespaces provide virtual cluster isolation within a physical cluster — separate resource quotas, RBAC, and network policies per namespace.'}
+ ],
+ terraform:[
+  {q:'What file stores the current state of your infrastructure in Terraform?',opts:['terraform.tfvars','main.tf','.terraform.lock.hcl','terraform.tfstate'],ans:3,exp:'terraform.tfstate is the source of truth for Terraform. It maps your config to real infrastructure. Store it remotely (S3+DynamoDB) for teams.'},
+  {q:'Which command shows what Terraform will change WITHOUT applying?',opts:['terraform validate','terraform check','terraform plan','terraform review'],ans:2,exp:'`terraform plan` shows the execution plan — what will be created, modified, or destroyed. Always review before apply!'},
+  {q:'What is the purpose of `terraform import`?',opts:['Import modules from registry','Bring existing resources into Terraform state','Import variables from file','Import provider plugins'],ans:1,exp:'`terraform import` brings manually created (or unmanaged) resources into Terraform state management without recreating them.'},
+  {q:'Which meta-argument prevents accidental resource deletion?',opts:['ignore_changes','create_before_destroy','prevent_destroy','replace_triggered_by'],ans:2,exp:'`lifecycle { prevent_destroy = true }` causes Terraform to error if you try to destroy the resource. Use for production databases and critical resources.'},
+  {q:'What is `for_each` preferred over `count` for?',opts:['Performance','Resources identified by value not index','Simpler syntax','Better state management'],ans:1,exp:'`for_each` uses map keys as resource identifiers — adding/removing items doesn\'t cause plan-all-destroy issues that happen with `count` when inserting in the middle.'}
+ ],
+ docker:[
+  {q:'What is the difference between COPY and ADD in Dockerfile?',opts:['ADD supports URLs and tar auto-extraction, COPY does not','COPY is faster than ADD','ADD is deprecated','No difference'],ans:0,exp:'ADD can fetch URLs and auto-extract .tar files. COPY is simpler and preferred for just copying files — use COPY unless you need ADD\'s extra features.'},
+  {q:'Which Dockerfile instruction runs commands at container startup?',opts:['RUN','CMD','START','EXEC'],ans:1,exp:'CMD specifies the default command to run when the container starts. RUN executes commands during BUILD time to create image layers.'},
+  {q:'What does `docker system prune` do?',opts:['Restarts Docker daemon','Removes unused containers, images, networks, volumes','Updates Docker','Backs up images'],ans:1,exp:'`docker system prune` removes: stopped containers, dangling images, unused networks. Add `-a` to also remove all unused images. Add `--volumes` for volumes.'},
+  {q:'How do you pass environment variables to a container?',opts:['docker run --config','docker run -e KEY=VALUE','docker run --setenv','docker run --env-file=file'],ans:1,exp:'`docker run -e KEY=VALUE` passes env vars. `-e KEY` uses the host env value. `--env-file=.env` loads from a file (preferred for multiple vars).'},
+  {q:'What is a multi-stage Docker build?',opts:['Building for multiple architectures','Using multiple FROM instructions to keep final image small','Running multiple builds in parallel','Building development and production images'],ans:1,exp:'Multi-stage builds use multiple FROM statements. You build in one stage (with full dev tools) and copy only the artifact to a minimal final stage, reducing image size dramatically.'}
+ ],
+ cicd:[
+  {q:'What does GitOps mean?',opts:['Using Git for CI/CD pipelines','Infrastructure and application state stored in Git as source of truth','Running Git in containers','Automating git operations'],ans:1,exp:'GitOps means Git is the single source of truth. Desired state is declared in Git, and operators (ArgoCD, Flux) automatically sync the running state to match Git.'},
+  {q:'What is a canary deployment?',opts:['Rolling back all traffic to old version','Deploying to a small subset of users before full rollout','Blue/green swap','A/B testing'],ans:1,exp:'Canary deployments route a small % of traffic (e.g., 5%) to the new version. If metrics are healthy, traffic gradually shifts to 100%. Allows early detection of issues.'},
+  {q:'What is OIDC in GitHub Actions?',opts:['A docker registry protocol','Federated identity to authenticate to cloud providers without stored credentials','Open ID Connect for users','OAuth protocol'],ans:1,exp:'OIDC (OpenID Connect) lets GitHub Actions authenticate to AWS/GCP/Azure by exchanging a JWT token for cloud credentials. No long-lived secrets stored in GitHub!'}
+ ]
+};
+
+const ACHIEVEMENTS = [
+ {id:'first_step',name:'First Step',icon:'👣',desc:'Complete your first topic',req:1,unlocked:false},
+ {id:'linux_master',name:'Linux Master',icon:'🐧',desc:'Complete all Linux topics',req:'phase:ph1',unlocked:false},
+ {id:'cloud_architect',name:'Cloud Architect',icon:'☁️',desc:'Complete all AWS topics',req:'phase:ph4',unlocked:false},
+ {id:'container_wizard',name:'Container Wizard',icon:'🐳',desc:'Complete Docker & K8s phase',req:'phase:ph5',unlocked:false},
+ {id:'iac_guru',name:'IaC Guru',icon:'🏗️',desc:'Complete Terraform & Ansible',req:'phase:ph6',unlocked:false},
+ {id:'devops_hero',name:'DevOps Hero',icon:'🚀',desc:'Complete CI/CD phase',req:'phase:ph7',unlocked:false},
+ {id:'sre_expert',name:'SRE Expert',icon:'📡',desc:'Complete SRE & Security',req:'phase:ph8',unlocked:false},
+ {id:'quiz_100',name:'Quiz Ace',icon:'⚡',desc:'Score 100% on any quiz',req:'quiz:perfect',unlocked:false},
+ {id:'streak_7',name:'7-Day Streak',icon:'🔥',desc:'Keep a 7-day learning streak',req:'streak:7',unlocked:false},
+ {id:'streak_30',name:'30-Day Warrior',icon:'⚔️',desc:'Maintain a 30-day streak',req:'streak:30',unlocked:false},
+ {id:'halfway',name:'Halfway Hero',icon:'🏃',desc:'Complete 50% of all topics',req:'progress:50',unlocked:false},
+ {id:'certified',name:'Zero to Hero',icon:'🏆',desc:'Complete 100% of all topics',req:'progress:100',unlocked:false}
+];
+
+const CERTS = [
+ {id:'ccp',name:'AWS Cloud Practitioner',icon:'☁️',provider:'Amazon Web Services',color:'#ff9900',
+  timeline:['Study cloud fundamentals (1 week)','Take official practice exam','Review Skill Builder course','Schedule exam'],
+  topics:['Cloud concepts','Core AWS services','Security & compliance','Billing & pricing'],
+  prepTime:'2-4 weeks',link:'https://aws.amazon.com/certification/certified-cloud-practitioner/'},
+ {id:'saa',name:'AWS Solutions Architect Associate',icon:'🏛️',provider:'Amazon Web Services',color:'#ff9900',
+  timeline:['Complete AWS core phases','Do 10+ hands-on labs','Take 4 practice exams','Review weak areas'],
+  topics:['VPC networking','EC2 & storage','High availability','Security & IAM','Cost optimization'],
+  prepTime:'6-8 weeks',link:'https://aws.amazon.com/certification/certified-solutions-architect-associate/'},
+ {id:'cka',name:'Certified Kubernetes Administrator',icon:'⚙️',provider:'CNCF / Linux Foundation',color:'#326ce5',
+  timeline:['Complete k8s phase','Practice on Killercoda daily','Do 3 mock exams (killer.sh)','Speed up kubectl commands'],
+  topics:['Cluster installation','Workloads & scheduling','Services & networking','Storage','Troubleshooting'],
+  prepTime:'8-10 weeks',link:'https://training.linuxfoundation.org/certification/certified-kubernetes-administrator-cka/'},
+ {id:'ckad',name:'Certified Kubernetes App Developer',icon:'📦',provider:'CNCF / Linux Foundation',color:'#326ce5',
+  timeline:['Complete k8s & Helm phases','Practice YAML manifests','2 mock exams','Focus on speed'],
+  topics:['Application design','Configuration','Multi-container pods','Observability','Services & networking'],
+  prepTime:'6-8 weeks',link:'https://training.linuxfoundation.org/certification/certified-kubernetes-application-developer-ckad/'},
+ {id:'tfa',name:'HashiCorp Terraform Associate',icon:'⬡',provider:'HashiCorp',color:'#7c3aed',
+  timeline:['Complete Terraform phase','Build 5+ real projects','Take official practice exam','Review modules & state'],
+  topics:['IaC concepts','HCL syntax','Terraform workflow','Modules & state','Terraform Cloud'],
+  prepTime:'4-6 weeks',link:'https://www.hashicorp.com/certification/terraform-associate'},
+ {id:'sap',name:'AWS Solutions Architect Professional',icon:'🌟',provider:'Amazon Web Services',color:'#ff4500',
+  timeline:['Get SAA first','2+ years AWS exp','Study complex scenarios','5+ practice exams'],
+  topics:['Complex multi-account','Advanced networking','Cost optimization','Migration strategies','Security at scale'],
+  prepTime:'3-6 months',link:'https://aws.amazon.com/certification/certified-solutions-architect-professional/'}
+];
+
+const CHEATSHEETS = [
+ {title:'Linux Fundamentals',items:[
+  ['ls -lahF','List files with details, human-readable, classify'],
+  ['find / -name "*.conf" -type f 2>/dev/null','Find files by pattern'],
+  ['chmod 755 file','rwxr-xr-x permissions'],
+  ['chown user:group file','Change owner and group'],
+  ['tar -czf archive.tar.gz dir/','Create gzipped tarball'],
+  ['tar -xzf archive.tar.gz','Extract tarball'],
+  ['df -hT','Disk usage with filesystem type'],
+  ['du -sh * | sort -rh','Directory sizes sorted'],
+  ['ps auxf','All processes with tree'],
+  ['kill -9 PID','Force kill process'],
+  ['systemctl restart service','Restart systemd service'],
+  ['journalctl -u service -f','Follow service logs']
+ ]},
+ {title:'SSH & Networking',items:[
+  ['ssh-keygen -t ed25519 -C "email"','Generate ED25519 key pair'],
+  ['ssh-copy-id user@host','Copy public key to remote host'],
+  ['ssh -L 8080:localhost:80 user@host','Local port forwarding'],
+  ['scp -r dir/ user@host:/path/','Recursive secure copy'],
+  ['rsync -avz --delete src/ dest/','Sync with deletion'],
+  ['ss -tunlp','Active connections with PIDs'],
+  ['tcpdump -i eth0 port 443 -n','Capture HTTPS traffic'],
+  ['dig +trace domain.com','Full DNS trace'],
+  ['curl -vk https://api.example.com','Verbose HTTP request'],
+  ['nmap -sV -p 1-1000 host','Port scan with versions'],
+  ['ip route show','Show routing table'],
+  ['iptables -L -n -v','List firewall rules']
+ ]},
+ {title:'AWS CLI Essentials',items:[
+  ['aws configure','Set up credentials & region'],
+  ['aws sts get-caller-identity','Check current identity'],
+  ['aws ec2 describe-instances --query "..."','List EC2 instances'],
+  ['aws s3 sync ./dir s3://bucket/','Sync to S3'],
+  ['aws s3 presign s3://bucket/key --expires-in 3600','Pre-signed URL'],
+  ['aws iam list-roles','List IAM roles'],
+  ['aws logs tail /aws/lambda/fn --follow','Follow Lambda logs'],
+  ['aws cloudformation describe-stacks','List CloudFormation stacks'],
+  ['aws eks update-kubeconfig --name cluster','Configure kubectl for EKS'],
+  ['aws ssm get-parameter --name /path/param --with-decryption','Get SSM secret'],
+  ['aws ec2 describe-vpcs','List all VPCs'],
+  ['aws route53 list-hosted-zones','List DNS zones']
+ ]},
+ {title:'kubectl Commands',items:[
+  ['kubectl get pods -A -o wide','All pods all namespaces'],
+  ['kubectl describe pod podname -n ns','Detailed pod info'],
+  ['kubectl logs -f deployment/app -c container','Follow app logs'],
+  ['kubectl exec -it pod -- bash','Shell into container'],
+  ['kubectl apply -f manifest.yaml','Apply configuration'],
+  ['kubectl delete -f manifest.yaml','Delete resources'],
+  ['kubectl rollout restart deployment/app','Rolling restart'],
+  ['kubectl rollout history deployment/app','Deployment history'],
+  ['kubectl scale deployment app --replicas=5','Manual scale'],
+  ['kubectl top pods -A','Resource usage all pods'],
+  ['kubectl get events --sort-by=.lastTimestamp -A','Recent events'],
+  ['kubectl auth can-i create pods','Check permissions']
+ ]},
+ {title:'Docker Commands',items:[
+  ['docker build -t image:tag --no-cache .','Build image no cache'],
+  ['docker run -d -p 8080:80 --name c nginx','Run named container'],
+  ['docker exec -it container bash','Shell into container'],
+  ['docker logs -f --tail 100 container','Follow container logs'],
+  ['docker inspect container | jq .[0]','Full container details'],
+  ['docker stats --no-stream','Resource usage snapshot'],
+  ['docker system prune -af','Remove all unused resources'],
+  ['docker image ls --format "table..."','List images formatted'],
+  ['docker network ls / inspect','List/inspect networks'],
+  ['docker cp file container:/path','Copy to container'],
+  ['docker commit container new-image','Commit container state'],
+  ['docker save image | gzip > img.tar.gz','Export image to file']
+ ]},
+ {title:'Terraform',items:[
+  ['terraform init -upgrade','Initialize & upgrade providers'],
+  ['terraform plan -out=plan.tfplan','Plan and save plan'],
+  ['terraform apply plan.tfplan','Apply saved plan'],
+  ['terraform state list','List state resources'],
+  ['terraform state show resource','Show resource state'],
+  ['terraform import addr id','Import existing resource'],
+  ['terraform output -json','Get outputs as JSON'],
+  ['terraform fmt -recursive','Format all .tf files'],
+  ['terraform validate','Validate configuration'],
+  ['terraform destroy -target=resource','Destroy specific resource'],
+  ['terraform workspace new env','Create new workspace'],
+  ['terraform graph | dot -Tsvg > graph.svg','Dependency graph']
+ ]},
+ {title:'Git Commands',items:[
+  ['git log --oneline --graph --all','Visual branch history'],
+  ['git rebase -i HEAD~3','Interactive rebase last 3 commits'],
+  ['git cherry-pick abc1234','Apply commit to current branch'],
+  ['git bisect start / good / bad','Binary search for bug commit'],
+  ['git stash push -m "message"','Stash with description'],
+  ['git reflog','Recovery — all HEAD movements'],
+  ['git diff main...feature','Changes unique to feature branch'],
+  ['git reset --soft HEAD~1','Undo last commit keep changes'],
+  ['git clean -fd','Remove untracked files & dirs'],
+  ['git tag -a v1.0.0 -m "Release"','Annotated tag'],
+  ['git remote set-url origin newurl','Change remote URL'],
+  ['git blame -L 10,20 file','Who changed lines 10-20']
+ ]},
+ {title:'PromQL Essentials',items:[
+  ['rate(http_requests_total[5m])','HTTP request rate 5min window'],
+  ['increase(errors_total[1h])','Error count increase over 1h'],
+  ['histogram_quantile(0.99, rate(latency_bucket[5m]))','99th percentile latency'],
+  ['sum by (pod) (container_memory_usage_bytes)','Memory per pod'],
+  ['(1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100','Disk % used'],
+  ['up == 0','Targets that are DOWN'],
+  ['absent(metric_name)','Alert if metric is missing'],
+  ['topk(5, sum by (service) (rate(errors[5m])))','Top 5 error services'],
+  ['changes(kube_deployment_status_replicas[10m]) > 0','Recent deployments'],
+  ['kube_pod_container_status_restarts_total > 5','Containers restarting']
+ ]}
+];
+
+const ARCHITECTURES = [
+ {
+  title:'3-Tier Web Application on AWS',
+  desc:'Classic production pattern: users → CloudFront → ALB → EC2 ASG → RDS Multi-AZ',
+  rows:[
+   {label:'CDN Layer',nodes:[{icon:'🌐',name:'CloudFront',note:'Global CDN, WAF, HTTPS termination'}],color:'#00f5ff'},
+   {label:'Load Balancing',nodes:[{icon:'⚖️',name:'Application\nLoad Balancer',note:'Path-based routing, health checks'}],color:'#00d4ff'},
+   {label:'Application Layer',nodes:[{icon:'💻',name:'EC2 Auto\nScaling Group\n(Public Subnet)',note:'Min:2, Max:20, CPU-based scaling'},{icon:'💻',name:'EC2 Auto\nScaling Group\n(Private Subnet)',note:'App servers, internal only'}],color:'#0080ff'},
+   {label:'Cache Layer',nodes:[{icon:'⚡',name:'ElastiCache\nRedis',note:'Session store, query cache, 6379'}],color:'#7c3aed'},
+   {label:'Database Layer',nodes:[{icon:'🗄️',name:'RDS Aurora\nPrimary (Multi-AZ)',note:'Write endpoint, us-east-1a'},{icon:'🗄️',name:'RDS Aurora\nRead Replica',note:'Read endpoint, us-east-1b'}],color:'#ec4899'},
+   {label:'Storage & CDN Origin',nodes:[{icon:'🪣',name:'S3 Bucket',note:'Static assets, backups, logs'}],color:'#ff9900'}
+  ]
+ },
+ {
+  title:'Kubernetes Microservices Architecture',
+  desc:'Container-native application with service mesh and observability',
+  rows:[
+   {label:'Ingress',nodes:[{icon:'🔀',name:'Nginx\nIngress Controller',note:'TLS termination, rate limiting'},{icon:'🔀',name:'AWS ALB\nIngress',note:'Layer 7, path routing'}],color:'#00f5ff'},
+   {label:'Services',nodes:[{icon:'🔵',name:'User Service',note:'auth, profile'},{icon:'🟢',name:'Order Service',note:'orders, payments'},{icon:'🟡',name:'Notification\nService',note:'email, push'}],color:'#0080ff'},
+   {label:'Messaging',nodes:[{icon:'📨',name:'Amazon SQS',note:'Async decoupling'},{icon:'📡',name:'Kafka\n(MSK)',note:'Event streaming'}],color:'#ff9900'},
+   {label:'Data',nodes:[{icon:'🐘',name:'PostgreSQL\n(RDS)',note:'User/Order data'},{icon:'⚡',name:'Redis\n(Elasticache)',note:'Sessions, cache'},{icon:'🔍',name:'OpenSearch',note:'Search, logs'}],color:'#ec4899'},
+   {label:'Observability',nodes:[{icon:'📊',name:'Prometheus\n+ Grafana',note:'Metrics & dashboards'},{icon:'🔎',name:'Jaeger',note:'Distributed tracing'}],color:'#7c3aed'}
+  ]
+ },
+ {
+  title:'CI/CD GitOps Pipeline',
+  desc:'Modern GitOps flow: code push → build → scan → deploy → verify',
+  rows:[
+   {label:'Developer',nodes:[{icon:'👨‍💻',name:'Developer\nPush to PR',note:'Feature branch'}],color:'#00f5ff'},
+   {label:'CI Pipeline (GitHub Actions)',nodes:[{icon:'🧪',name:'Run Tests\n(Jest/pytest)',note:'Unit + integration'},{icon:'🔍',name:'SAST Scan\n(CodeQL)',note:'Static analysis'},{icon:'🐳',name:'Docker Build\n+ Trivy Scan',note:'Image security'}],color:'#0080ff'},
+   {label:'Registry',nodes:[{icon:'📦',name:'Push to ECR\n(Tagged)',note:'Immutable tags'}],color:'#ff9900'},
+   {label:'GitOps Sync (ArgoCD)',nodes:[{icon:'🔄',name:'Update image\ntag in GitOps repo',note:'Automated PR'},{icon:'✅',name:'ArgoCD detects\ndrift & syncs',note:'Auto or manual'}],color:'#7c3aed'},
+   {label:'Deployment',nodes:[{icon:'🟢',name:'Staging\n(Canary 5%)',note:'Run smoke tests'},{icon:'🚀',name:'Production\n(Progressive 100%)',note:'Argo Rollouts'}],color:'#ec4899'},
+   {label:'Monitoring',nodes:[{icon:'📊',name:'SLO Alerts\n(Prometheus)',note:'Error budget burns'},{icon:'🚨',name:'PagerDuty\nAlerting',note:'On-call notification'}],color:'#ef4444'}
+  ]
+ }
+];
+
+// ===================== STATE =====================
+let state = {
+ completed: {},
+ xp: 0,
+ streak: 0,
+ lastActive: null,
+ quizScores: {},
+ currentSection: 'dashboard',
+ searchQuery: '',
+ filter: 'all',
+ daysCompleted: {}
+};
+
+function loadState() {
+ try {
+  const saved = localStorage.getItem('cloudHero_state');
+  if (saved) state = {...state, ...JSON.parse(saved)};
+ } catch(e) {}
+ updateStreak();
+}
+
+function saveState() {
+ localStorage.setItem('cloudHero_state', JSON.stringify(state));
+ updateDashboard();
+}
+
+function updateStreak() {
+ const today = new Date().toDateString();
+ const yesterday = new Date(Date.now() - 86400000).toDateString();
+ if (state.lastActive === today) return;
+ if (state.lastActive === yesterday) {
+  state.streak = (state.streak || 0) + 1;
+ } else if (state.lastActive !== today) {
+  state.streak = 1;
+ }
+ state.lastActive = today;
+}
+
+// ===================== CANVAS BG =====================
+(function initCanvas() {
+ const canvas = document.getElementById('bgCanvas');
+ const ctx = canvas.getContext('2d');
+ let particles = [];
+ let W, H;
+
+ function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+ }
+ resize();
+ window.addEventListener('resize', resize);
+
+ for (let i = 0; i < 80; i++) {
+  particles.push({
+   x: Math.random() * 2000,
+   y: Math.random() * 1200,
+   r: Math.random() * 1.5 + 0.3,
+   vx: (Math.random() - 0.5) * 0.3,
+   vy: (Math.random() - 0.5) * 0.3,
+   alpha: Math.random() * 0.6 + 0.1,
+   hue: Math.random() > 0.5 ? 190 : 270
+  });
+ }
+
+ function draw() {
+  ctx.clearRect(0, 0, W, H);
+  particles.forEach(p => {
+   p.x += p.vx; p.y += p.vy;
+   if (p.x < 0) p.x = W;
+   if (p.x > W) p.x = 0;
+   if (p.y < 0) p.y = H;
+   if (p.y > H) p.y = 0;
+   ctx.beginPath();
+   ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+   ctx.fillStyle = `hsla(${p.hue},100%,70%,${p.alpha})`;
+   ctx.fill();
+  });
+
+  // Draw connections
+  for (let i = 0; i < particles.length; i++) {
+   for (let j = i + 1; j < particles.length; j++) {
+    const dx = particles[i].x - particles[j].x;
+    const dy = particles[i].y - particles[j].y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < 120) {
+     ctx.beginPath();
+     ctx.moveTo(particles[i].x, particles[i].y);
+     ctx.lineTo(particles[j].x, particles[j].y);
+     ctx.strokeStyle = `rgba(0,245,255,${0.08 * (1 - dist/120)})`;
+     ctx.lineWidth = 0.5;
+     ctx.stroke();
+    }
+   }
+  }
+  requestAnimationFrame(draw);
+ }
+ draw();
+})();
+
+// ===================== SKILL TREE =====================
+function initSkillTree() {
+ const canvas = document.getElementById('skillTreeCanvas');
+ if (!canvas) return;
+ const ctx = canvas.getContext('2d');
+ const W = canvas.offsetWidth;
+ const H = 600;
+ canvas.width = W; canvas.height = H;
+
+ const nodes = [];
+ const phaseCount = PHASES.length;
+
+ PHASES.forEach((phase, pi) => {
+  const x = (pi + 1) * (W / (phaseCount + 1));
+  const y = 80 + Math.sin(pi * 0.8) * 30;
+  nodes.push({
+   x, y, r: 28, label: `P${pi+1}`,
+   fullLabel: phase.title.split(':')[1]?.trim() || phase.title,
+   color: phase.color,
+   phase: phase,
+   type: 'phase',
+   completed: getPhaseProgress(phase) >= 100
+  });
+
+  phase.topics.slice(0, Math.min(3, phase.topics.length)).forEach((topic, ti) => {
+   const tx = x + (ti - 1) * 80;
+   const ty = y + 120 + ti * 20;
+   nodes.push({
+    x: tx, y: ty, r: 16,
+    label: topic.name.split(' ')[0],
+    color: phase.color,
+    type: 'topic',
+    completed: !!state.completed[topic.id],
+    parentIdx: nodes.length - topic.topics?.length - 1 - ti
+   });
+  });
+ });
+
+ let offsetX = 0, dragging = false, startX = 0;
+
+ canvas.addEventListener('mousedown', e => { dragging = true; startX = e.clientX - offsetX; });
+ canvas.addEventListener('mousemove', e => { if (dragging) { offsetX = e.clientX - startX; render(); } });
+ canvas.addEventListener('mouseup', () => dragging = false);
+ canvas.addEventListener('mouseleave', () => dragging = false);
+
+ let tooltip = null;
+ canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left - offsetX;
+  const my = e.clientY - rect.top;
+  tooltip = null;
+  nodes.forEach(n => {
+   const dx = mx - n.x, dy = my - n.y;
+   if (Math.sqrt(dx*dx+dy*dy) < n.r + 10) tooltip = n;
+  });
+ });
+
+ function render() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Draw connections between phases
+  for (let i = 0; i < PHASES.length - 1; i++) {
+   const n1 = nodes.filter(n => n.type === 'phase')[i];
+   const n2 = nodes.filter(n => n.type === 'phase')[i+1];
+   if (!n1 || !n2) continue;
+   ctx.beginPath();
+   ctx.moveTo(n1.x + offsetX, n1.y);
+   ctx.lineTo(n2.x + offsetX, n2.y);
+   ctx.strokeStyle = n1.completed && n2.completed ? '#00ff88' : 'rgba(0,245,255,0.15)';
+   ctx.lineWidth = 2;
+   ctx.setLineDash(n1.completed ? [] : [5,5]);
+   ctx.stroke();
+   ctx.setLineDash([]);
+  }
+
+  nodes.forEach(n => {
+   const cx = n.x + offsetX;
+
+   if (n.type === 'topic') {
+    ctx.beginPath();
+    ctx.arc(cx, n.y, n.r, 0, Math.PI*2);
+    ctx.fillStyle = n.completed ? n.color + '33' : 'rgba(255,255,255,0.04)';
+    ctx.fill();
+    ctx.strokeStyle = n.completed ? n.color : 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = n.completed ? n.color : 'rgba(255,255,255,0.3)';
+    ctx.font = '9px Orbitron';
+    ctx.textAlign = 'center';
+    ctx.fillText(n.label.substring(0,6), cx, n.y + 3);
+    return;
+   }
+
+   // Phase node
+   const grd = ctx.createRadialGradient(cx, n.y, 0, cx, n.y, n.r);
+   grd.addColorStop(0, n.completed ? n.color : (n.color + '66'));
+   grd.addColorStop(1, 'transparent');
+
+   if (n === tooltip) {
+    ctx.beginPath();
+    ctx.arc(cx, n.y, n.r + 8, 0, Math.PI*2);
+    ctx.fillStyle = n.color + '22';
+    ctx.fill();
+   }
+
+   ctx.beginPath();
+   ctx.arc(cx, n.y, n.r, 0, Math.PI*2);
+   ctx.fillStyle = grd;
+   ctx.fill();
+   ctx.strokeStyle = n.completed ? '#00ff88' : n.color;
+   ctx.lineWidth = n === tooltip ? 3 : 2;
+   ctx.stroke();
+
+   ctx.fillStyle = '#fff';
+   ctx.font = 'bold 14px Orbitron';
+   ctx.textAlign = 'center';
+   ctx.fillText(n.label, cx, n.y + 5);
+
+   ctx.fillStyle = n.color;
+   ctx.font = '10px "Exo 2"';
+   ctx.fillText(n.fullLabel?.substring(0, 14) || '', cx, n.y + n.r + 16);
+
+   const prog = getPhaseProgress(n.phase);
+   ctx.fillStyle = 'rgba(255,255,255,0.3)';
+   ctx.font = '9px "JetBrains Mono"';
+   ctx.fillText(prog + '%', cx, n.y + n.r + 28);
+  });
+
+  if (tooltip && tooltip.type === 'phase') {
+   const cx = tooltip.x + offsetX;
+   const cy = tooltip.y + tooltip.r + 50;
+   const text = tooltip.fullLabel || '';
+   ctx.fillStyle = 'rgba(0,4,9,0.95)';
+   ctx.strokeStyle = tooltip.color;
+   ctx.lineWidth = 1;
+   ctx.beginPath();
+   ctx.roundRect(cx - 80, cy - 15, 160, 28, 6);
+   ctx.fill();
+   ctx.stroke();
+   ctx.fillStyle = tooltip.color;
+   ctx.font = '11px "Exo 2"';
+   ctx.textAlign = 'center';
+   ctx.fillText(text, cx, cy + 2);
+  }
+ }
+
+ render();
+ setInterval(render, 100);
+}
+
+// ===================== PROGRESS =====================
+function getAllTopics() {
+ return PHASES.flatMap(p => p.topics);
+}
+
+function getPhaseProgress(phase) {
+ const total = phase.topics.length;
+ const done = phase.topics.filter(t => state.completed[t.id]).length;
+ return total ? Math.round((done / total) * 100) : 0;
+}
+
+function getTotalProgress() {
+ const all = getAllTopics();
+ const done = all.filter(t => state.completed[t.id]).length;
+ return { done, total: all.length, pct: all.length ? Math.round((done/all.length)*100) : 0 };
+}
+
+function getTotalXP() {
+ return getAllTopics()
+  .filter(t => state.completed[t.id])
+  .reduce((sum, t) => sum + (t.xp || 0), 0);
+}
+
+function getLevel(xp) {
+ const levels = [
+  {min:0,name:'Novice',title:'Novice'},
+  {min:200,name:'Learner',title:'Learner'},
+  {min:600,name:'Practitioner',title:'Practitioner'},
+  {min:1200,name:'Engineer',title:'Cloud Engineer'},
+  {min:2500,name:'Architect',title:'Cloud Architect'},
+  {min:4500,name:'Expert',title:'Cloud Expert'},
+  {min:7000,name:'Hero',title:'Cloud Hero'}
+ ];
+ let level = levels[0];
+ let idx = 0;
+ for (let i = 0; i < levels.length; i++) {
+  if (xp >= levels[i].min) { level = levels[i]; idx = i; }
+ }
+ const next = levels[idx + 1];
+ const pct = next ? Math.round(((xp - level.min) / (next.min - level.min)) * 100) : 100;
+ return { ...level, idx: idx + 1, next, pct, xp };
+}
+
+function updateDashboard() {
+ const { done, total, pct } = getTotalProgress();
+ const xp = getTotalXP();
+ const lvl = getLevel(xp);
+ const days = Object.keys(state.daysCompleted).length;
+ const readiness = Math.min(100, Math.round(pct * 1.1));
+ const readinessLabels = ['Keep learning','Getting started','Building basics','Solid foundation','Interview-ready','Industry-ready','Expert level'];
+
+ set('dc-overall', pct + '%');
+ set('dc-completed', done);
+ set('dc-total', total);
+ set('dc-remaining', total - done);
+ set('dc-xp', xp.toLocaleString());
+ set('dc-level', `Level ${lvl.idx} — ${lvl.name}`);
+ set('dc-readiness', readiness + '%');
+ set('dc-readiness-label', readinessLabels[Math.floor(readiness/15)] || 'Expert');
+ set('dc-days', days);
+ set('streakCount', state.streak || 0);
+ set('sidebarLevel', lvl.idx);
+ set('sidebarTitle', lvl.name);
+ set('sidebarXp', xp.toLocaleString());
+ set('sidebarXpNext', (lvl.next?.min || xp).toLocaleString());
+ set('navProgressText', pct + '%');
+
+ const xpBar = document.getElementById('sidebarXpBar');
+ if (xpBar) xpBar.style.width = lvl.pct + '%';
+ const navBar = document.getElementById('navProgressBar');
+ if (navBar) navBar.style.width = pct + '%';
+
+ // Phase overview
+ const overview = document.getElementById('dashPhaseOverview');
+ if (overview) {
+  overview.innerHTML = PHASES.map(p => {
+   const prog = getPhaseProgress(p);
+   return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:14px 20px;background:var(--bg-card);border:1px solid var(--glass-border);border-radius:12px">
+    <div style="width:36px;height:36px;border-radius:10px;background:${p.color}22;border:1px solid ${p.color}44;display:flex;align-items:center;justify-content:center;font-size:12px;color:${p.color};font-family:var(--font-head);font-weight:700;flex-shrink:0">${prog}%</div>
+    <div style="flex:1">
+     <div style="font-size:13px;color:var(--text-primary);margin-bottom:6px">${p.title}</div>
+     <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden">
+      <div style="height:100%;background:${p.color};border-radius:999px;width:${prog}%;transition:width 0.8s ease"></div>
+     </div>
+    </div>
+    <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">${p.weeks}</div>
+   </div>`;
+  }).join('');
+ }
+ checkAchievements();
+}
+
+function set(id, val) {
+ const el = document.getElementById(id);
+ if (el) el.textContent = val;
+}
+
+// ===================== RENDER ROADMAP =====================
+function renderRoadmap(filter = '') {
+ const container = document.getElementById('phasesContainer');
+ if (!container) return;
+ const diff = state.filter || 'all';
+
+ let html = '';
+ PHASES.forEach((phase, pi) => {
+  if (diff !== 'all' && phase.difficulty !== diff) return;
+
+  const filteredTopics = filter
+   ? phase.topics.filter(t =>
+    t.name.toLowerCase().includes(filter.toLowerCase()) ||
+    t.subtopics?.some(s => s.toLowerCase().includes(filter.toLowerCase())))
+   : phase.topics;
+
+  if (filter && filteredTopics.length === 0) return;
+
+  const prog = getPhaseProgress(phase);
+  const diffBadge = phase.difficulty.toLowerCase();
+
+  html += `<div class="phase-card" id="phase-card-${pi}">
+   <div class="phase-header" onclick="togglePhase(${pi})">
+    <div class="phase-num" style="background:${phase.color}22;color:${phase.color};border:1px solid ${phase.color}44">${pi+1}</div>
+    <div class="phase-meta">
+     <div class="phase-title">${phase.title}</div>
+     <div class="phase-subtitle">${phase.weeks} • ${phase.topics.length} topics • ${phase.xpTotal} XP</div>
+    </div>
+    <div class="phase-stats">
+     <span class="phase-badge badge-${diffBadge}">${phase.difficulty}</span>
+     <div>
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px">${prog}% done</div>
+      <div class="phase-progress-bar"><div class="phase-progress-fill" style="width:${prog}%;background:${phase.color}"></div></div>
+     </div>
+    </div>
+    <div class="phase-toggle">▶</div>
+   </div>
+   <div class="phase-body">
+    <div class="topics-grid">
+     ${filteredTopics.map(t => renderTopic(t, phase)).join('')}
+    </div>
+   </div>
+  </div>`;
+ });
+
+ container.innerHTML = html || `<div class="empty-state"><div class="es-icon">🔍</div>No topics match your search</div>`;
+}
+
+function renderTopic(t, phase) {
+ const done = !!state.completed[t.id];
+ return `<div class="topic-item" id="ti-${t.id}">
+  <div class="topic-header" onclick="toggleTopic('${t.id}')">
+   <div class="topic-check ${done ? 'done' : ''}" onclick="checkTopic(event,'${t.id}',${t.xp})">${done ? '✓' : ''}</div>
+   <div class="topic-name ${done ? 'done-text' : ''}">${t.name}</div>
+   <span class="topic-xp">+${t.xp} XP</span>
+   <span class="topic-expand">▶</span>
+  </div>
+  <div class="topic-detail">
+   <div class="detail-tabs">
+    <div class="dtab active" onclick="switchTab(this,'tab-sub-${t.id}')">Subtopics</div>
+    <div class="dtab" onclick="switchTab(this,'tab-res-${t.id}')">Resources</div>
+    <div class="dtab" onclick="switchTab(this,'tab-lab-${t.id}')">Labs</div>
+    <div class="dtab" onclick="switchTab(this,'tab-cmd-${t.id}')">Commands</div>
+    <div class="dtab" onclick="switchTab(this,'tab-int-${t.id}')">Interview</div>
+   </div>
+   <div class="detail-panel active" id="tab-sub-${t.id}">
+    <ul class="detail-list">${(t.subtopics||[]).map(s=>`<li>${s}</li>`).join('')}</ul>
+    ${t.tips ? `<div class="tip-box">${t.tips}</div>` : ''}
+   </div>
+   <div class="detail-panel" id="tab-res-${t.id}">
+    <ul class="detail-list">${(t.resources||[]).map(r=>`<li><a class="resource-link" href="${r}" target="_blank" rel="noopener">${r.replace('https://','').split('/')[0]}</a> — ${r}</li>`).join('')}</ul>
+   </div>
+   <div class="detail-panel" id="tab-lab-${t.id}">
+    <ul class="detail-list">${(t.labs||[]).map(l=>`<li>${l}</li>`).join('')}</ul>
+   </div>
+   <div class="detail-panel" id="tab-cmd-${t.id}">
+    <div class="code-block">${(t.commands||[]).join('\n')}</div>
+   </div>
+   <div class="detail-panel" id="tab-int-${t.id}">
+    ${(t.interview||[]).map((q,i)=>`<div class="interview-q"><strong>Q${i+1}</strong>${q}</div>`).join('')}
+   </div>
+  </div>
+ </div>`;
+}
+
+function togglePhase(pi) {
+ const card = document.getElementById(`phase-card-${pi}`);
+ if (card) card.classList.toggle('expanded');
+}
+
+function toggleTopic(id) {
+ const el = document.getElementById(`ti-${id}`);
+ if (el) el.classList.toggle('open');
+}
+
+function checkTopic(e, id, xp) {
+ e.stopPropagation();
+ state.completed[id] = !state.completed[id];
+ saveState();
+ renderRoadmap(state.searchQuery);
+ showToast(state.completed[id] ? `✅ +${xp} XP earned!` : '↩ Topic unchecked');
+}
+
+function switchTab(btn, panelId) {
+ const detail = btn.closest('.topic-detail');
+ detail.querySelectorAll('.dtab').forEach(t => t.classList.remove('active'));
+ detail.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('active'));
+ btn.classList.add('active');
+ const panel = document.getElementById(panelId);
+ if (panel) panel.classList.add('active');
+}
+
+// ===================== DAILY PLAN =====================
+function renderDailyPlan() {
+ const weeks = [...new Set(DAILY_PLAN.map(d => d.week))];
+ const tabsEl = document.getElementById('weekTabs');
+ const gridEl = document.getElementById('daysGrid');
+ if (!tabsEl || !gridEl) return;
+
+ tabsEl.innerHTML = weeks.map((w,i) =>
+  `<div class="wtab ${i===0?'active':''}" onclick="showWeek(${w},this)">Week ${w}</div>`
+ ).join('');
+
+ function renderWeek(week) {
+  const days = DAILY_PLAN.filter(d => d.week === week);
+  gridEl.innerHTML = days.map(d => {
+   const done = !!state.daysCompleted[d.day];
+   return `<div class="day-card ${done?'done-card':''}" style="--day-color:${d.color}">
+    <div class="day-num">DAY ${d.day} — ${d.phase}</div>
+    <div class="day-topic">${d.topic}</div>
+    <div class="day-tags">${(d.subtopics||[]).map(s=>`<span class="day-tag">${s}</span>`).join('')}</div>
+    <div class="day-time-grid">
+     <div class="day-time-slot"><div class="t-val">${d.time?.theory||60}m</div><div class="t-lbl">Theory</div></div>
+     <div class="day-time-slot"><div class="t-val">${d.time?.practical||90}m</div><div class="t-lbl">Practice</div></div>
+     <div class="day-time-slot"><div class="t-val">${d.time?.review||30}m</div><div class="t-lbl">Review</div></div>
+    </div>
+    <button class="day-expand-btn" onclick="toggleDayCard(this)">▼ View details</button>
+    <div class="day-details">
+     <div class="day-detail-section"><h6>Labs</h6><ul>${(d.labs||[]).map(l=>`<li>${l}</li>`).join('')}</ul></div>
+     <div class="day-detail-section"><h6>Commands to practice</h6><ul>${(d.commands||[]).map(c=>`<li style="font-family:var(--font-mono);font-size:11px;color:var(--neon-green)">${c}</li>`).join('')}</ul></div>
+     ${d.challenge ? `<div class="day-detail-section"><h6>🏆 Challenge</h6><div style="font-size:13px;color:var(--text-secondary);padding:8px;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.15);border-radius:8px">${d.challenge}</div></div>` : ''}
+    </div>
+    <div class="day-check-wrap">
+     <button class="day-check-btn ${done?'done':''}" onclick="checkDay(${d.day},this)">
+      ${done ? '✅ Done' : '○ Mark Complete'}
+     </button>
+    </div>
+   </div>`;
+  }).join('');
+ }
+
+ window.showWeek = function(week, el) {
+  tabsEl.querySelectorAll('.wtab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderWeek(week);
+ };
+
+ renderWeek(weeks[0]);
+}
+
+function toggleDayCard(btn) {
+ const card = btn.closest('.day-card');
+ card.classList.toggle('expanded');
+ btn.textContent = card.classList.contains('expanded') ? '▲ Hide details' : '▼ View details';
+}
+
+function checkDay(day, btn) {
+ state.daysCompleted[day] = !state.daysCompleted[day];
+ saveState();
+ btn.classList.toggle('done');
+ btn.textContent = state.daysCompleted[day] ? '✅ Done' : '○ Mark Complete';
+ showToast(state.daysCompleted[day] ? '📅 Day marked complete!' : '↩ Day unchecked');
+}
+
+// ===================== QUIZ =====================
+let quizState = { cat: 'linux', current: 0, score: 0, answered: false };
+
+function renderQuiz() {
+ const catSel = document.getElementById('quizCatSelector');
+ const container = document.getElementById('quizContainer');
+ if (!catSel || !container) return;
+
+ const cats = Object.keys(QUIZ_DATA);
+ catSel.innerHTML = cats.map(c =>
+  `<div class="qcat-btn ${c === quizState.cat ? 'active' : ''}" onclick="selectQuizCat('${c}',this)">${c.charAt(0).toUpperCase()+c.slice(1)}</div>`
+ ).join('');
+
+ renderQuizCard();
+}
+
+function selectQuizCat(cat, el) {
+ quizState = { cat, current: 0, score: 0, answered: false };
+ document.querySelectorAll('.qcat-btn').forEach(b => b.classList.remove('active'));
+ if (el) el.classList.add('active');
+ renderQuizCard();
+}
+
+function renderQuizCard() {
+ const container = document.getElementById('quizContainer');
+ if (!container) return;
+ const qs = QUIZ_DATA[quizState.cat] || [];
+ if (quizState.current >= qs.length) {
+  const pct = Math.round((quizState.score / qs.length) * 100);
+  container.innerHTML = `<div class="quiz-card">
+   <div class="quiz-score">
+    <div class="quiz-cat">Quiz Complete!</div>
+    <div class="score-val">${pct}%</div>
+    <div style="font-size:16px;color:var(--text-secondary);margin:12px 0">${quizState.score}/${qs.length} correct</div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px">${pct >= 80 ? '🌟 Excellent work!' : pct >= 60 ? '👍 Good job! Review weak areas.' : '📚 Keep studying and try again!'}</div>
+    <button class="quiz-next show" onclick="selectQuizCat('${quizState.cat}')">Try Again</button>
+   </div>
+  </div>`;
+  if (pct === 100) checkAchievements('quiz:perfect');
+  return;
+ }
+
+ const q = qs[quizState.current];
+ const letters = ['A','B','C','D'];
+ container.innerHTML = `<div class="quiz-card">
+  <div class="quiz-progress-wrap">
+   <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted)">
+    <span>Question ${quizState.current+1}/${qs.length}</span>
+    <span>Score: ${quizState.score}</span>
+   </div>
+   <div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${(quizState.current/qs.length)*100}%"></div></div>
+  </div>
+  <div class="quiz-cat">${quizState.cat.toUpperCase()}</div>
+  <div class="quiz-q">${q.q}</div>
+  <div class="quiz-options">
+   ${q.opts.map((o,i) => `<button class="quiz-opt" data-letter="${letters[i]}" data-idx="${i}" onclick="answerQuiz(${i},${q.ans},'${(q.exp||'').replace(/'/g,'\\\'')}')">${o}</button>`).join('')}
+  </div>
+  <div class="quiz-feedback" id="qfeedback"></div>
+  <button class="quiz-next" id="qnext" onclick="nextQuestion()">Next Question →</button>
+ </div>`;
+}
+
+function answerQuiz(idx, correct, exp) {
+ if (quizState.answered) return;
+ quizState.answered = true;
+ const opts = document.querySelectorAll('.quiz-opt');
+ opts.forEach(o => { o.disabled = true; });
+ opts[idx].classList.add(idx === correct ? 'correct' : 'wrong');
+ if (idx !== correct) opts[correct].classList.add('correct');
+ if (idx === correct) quizState.score++;
+
+ const fb = document.getElementById('qfeedback');
+ const next = document.getElementById('qnext');
+ if (fb) {
+  fb.className = `quiz-feedback show ${idx === correct ? 'correct-fb' : 'wrong-fb'}`;
+  fb.textContent = (idx === correct ? '✓ Correct! ' : '✗ Wrong. ') + exp;
+ }
+ if (next) next.classList.add('show');
+}
+
+function nextQuestion() {
+ quizState.current++;
+ quizState.answered = false;
+ renderQuizCard();
+}
+
+// ===================== TERMINAL =====================
+const TERM_CMDS = {
+ help: () => `Available commands:\n  ls, pwd, whoami, hostname, date, uname\n  echo, cat, clear, history\n  aws (mock), kubectl (mock), docker (mock)\n  terraform (mock), git (mock)\n  ping, curl (mock)`,
+ ls: () => `total 48\ndrwxr-xr-x  5 cloud cloud 4096 Jan 15 09:30 .\ndrwxr-xr-x 18 root  root  4096 Jan 15 09:00 ..\n-rw-r--r--  1 cloud cloud  220 Jan 15 09:00 .bash_logout\n-rw-r--r--  1 cloud cloud 3526 Jan 15 09:00 .bashrc\ndrwxr-xr-x  2 cloud cloud 4096 Jan 15 09:20 projects/\ndrwxr-xr-x  3 cloud cloud 4096 Jan 15 09:25 terraform/\n-rw-rw-r--  1 cloud cloud  891 Jan 15 09:30 notes.txt`,
+ pwd: () => '/home/cloud',
+ whoami: () => 'cloud',
+ hostname: () => 'cloud-lab-001',
+ date: () => new Date().toString(),
+ uname: () => 'Linux cloud-lab-001 5.15.0-91-generic #101-Ubuntu SMP x86_64 GNU/Linux',
+ 'uname -a': () => 'Linux cloud-lab-001 5.15.0-91-generic #101-Ubuntu SMP Tue Nov 14 13:30:08 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux',
+ clear: () => '__CLEAR__',
+ history: () => `  1  sudo apt update\n  2  aws configure\n  3  kubectl get pods -A\n  4  terraform init\n  5  docker ps\n  6  git log --oneline\n  7  ls\n  8  help`,
+ 'aws sts get-caller-identity': () => `{\n    "UserId": "AIDIODR4TAW7CSEXAMPLE",\n    "Account": "123456789012",\n    "Arn": "arn:aws:iam::123456789012:user/DevOpsEngineer"\n}`,
+ 'aws s3 ls': () => `2024-01-10 09:15:00 my-app-production-bucket\n2024-01-12 14:30:00 terraform-state-bucket\n2024-01-15 09:00:00 logs-archive-bucket`,
+ 'aws ec2 describe-instances --query "Reservations[].Instances[].{ID:InstanceId,State:State.Name}"': () => `[\n  { "ID": "i-0abc123def456789", "State": "running" },\n  { "ID": "i-0def789abc123456", "State": "stopped" },\n  { "ID": "i-0xyz456def789abc", "State": "running" }\n]`,
+ 'kubectl get pods -A': () => `NAMESPACE     NAME                              READY   STATUS    RESTARTS   AGE\nkube-system   coredns-5d78c9869d-9xbcv          1/1     Running   0          7d\nkube-system   kube-proxy-j8nhk                  1/1     Running   0          7d\nproduction    api-deployment-75d9f8b4b8-kl9mn   1/1     Running   0          2h\nproduction    web-deployment-6c8f9d7b5c-p2qrs   3/3     Running   0          2h\nmonitoring    prometheus-server-0               1/1     Running   0          3d`,
+ 'kubectl get nodes': () => `NAME          STATUS   ROLES           AGE   VERSION\ncontrolplane  Ready    control-plane   7d    v1.28.4\nworker-01     Ready    <none>          7d    v1.28.4\nworker-02     Ready    <none>          7d    v1.28.4`,
+ 'docker ps': () => `CONTAINER ID   IMAGE          COMMAND                  STATUS          PORTS\na1b2c3d4e5f6   nginx:1.25     "/docker-entrypoint."    Up 2 hours      0.0.0.0:80->80/tcp\nb2c3d4e5f6a1   redis:7.0      "docker-entrypoint.s"    Up 2 hours      6379/tcp\nc3d4e5f6a1b2   postgres:15    "docker-entrypoint.s"    Up 2 hours      5432/tcp`,
+ 'terraform state list': () => `aws_vpc.main\naws_subnet.public[0]\naws_subnet.public[1]\naws_subnet.private[0]\naws_subnet.private[1]\naws_internet_gateway.main\naws_nat_gateway.main\naws_security_group.web\naws_instance.web[0]\naws_instance.web[1]`,
+ 'git log --oneline --graph': () => `* a1b2c3d (HEAD -> main) feat: add kubernetes manifests\n* b2c3d4e fix: resolve memory leak in api service\n| * c3d4e5f (feature/new-dashboard) feat: add grafana dashboard\n|/\n* d4e5f6a chore: update terraform provider versions\n* e5f6a7b feat: implement canary deployment`,
+ ping: (args) => `PING ${args[0]||'8.8.8.8'} (8.8.8.8): 56 data bytes\n64 bytes from 8.8.8.8: icmp_seq=0 ttl=118 time=12.4 ms\n64 bytes from 8.8.8.8: icmp_seq=1 ttl=118 time=11.8 ms\n64 bytes from 8.8.8.8: icmp_seq=2 ttl=118 time=12.1 ms\n--- ping statistics ---\n3 packets transmitted, 3 received, 0% packet loss`,
+ 'ps aux': () => `USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND\nroot         1  0.0  0.0  22528  1524 ?        Ss   09:00   0:01 /sbin/init\ncloud     1234  0.0  0.1 106912  4892 pts/0    Ss   09:30   0:00 bash\ncloud     1337  2.1  1.2 892456 49284 ?        Sl   09:45   0:15 node server.js\ncloud     1338  0.0  0.0  22572  1284 ?        S    09:45   0:00 [node] <defunct>`,
+ 'df -h': () => `Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda1        50G   18G   30G  38% /\ntmpfs           1.9G  1.2M  1.9G   1% /dev/shm\n/dev/sdb1        20G  8.5G   11G  45% /data`,
+ 'free -h': () => `              total        used        free      shared  buff/cache   available\nMem:           7.7G        2.1G        3.2G        156M        2.3G        5.1G\nSwap:          2.0G          0B        2.0G`,
+ echo: (args) => args.join(' ') || '',
+ cat: (args) => args[0] === 'notes.txt' ? '# Cloud Study Notes\n\n- Day 1: Linux fundamentals done ✓\n- Day 2: Bash scripting practice\n- TODO: Review IAM policies\n- TODO: Terraform modules' : `cat: ${args[0]}: No such file or directory`
+};
+
+function initTerminal() {
+ const output = document.getElementById('termOutput');
+ const input = document.getElementById('termInput');
+ const cmdsEl = document.getElementById('termCmds');
+ if (!output || !input) return;
+
+ const history = [];
+ let histIdx = -1;
+
+ const quickCmds = ['help','ls -la','kubectl get pods -A','aws sts get-caller-identity','docker ps','terraform state list','git log --oneline --graph','ps aux','df -h','free -h'];
+ if (cmdsEl) {
+  cmdsEl.innerHTML = quickCmds.map(c =>
+   `<button class="term-cmd-btn" onclick="runTermCmd('${c}')">${c}</button>`
+  ).join('');
+ }
+
+ addTermLine('info', '╔═══════════════════════════════════════════╗');
+ addTermLine('info', '║  Cloud Engineering Lab — Simulator v1.0   ║');
+ addTermLine('info', '║  Type "help" to see available commands     ║');
+ addTermLine('info', '╚═══════════════════════════════════════════╝');
+
+ input.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+   const cmd = input.value.trim();
+   if (!cmd) return;
+   history.unshift(cmd); histIdx = -1;
+   addTermLine('cmd', `cloud@lab:~$ ${cmd}`);
+   execCmd(cmd);
+   input.value = '';
+  } else if (e.key === 'ArrowUp') {
+   e.preventDefault();
+   if (histIdx < history.length - 1) { histIdx++; input.value = history[histIdx]; }
+  } else if (e.key === 'ArrowDown') {
+   e.preventDefault();
+   if (histIdx > 0) { histIdx--; input.value = history[histIdx]; }
+   else { histIdx = -1; input.value = ''; }
+  }
+ });
+
+ window.runTermCmd = function(cmd) {
+  input.value = cmd;
+  addTermLine('cmd', `cloud@lab:~$ ${cmd}`);
+  execCmd(cmd);
+  input.value = '';
+  input.focus();
+ };
+
+ function execCmd(cmd) {
+  const parts = cmd.trim().split(' ');
+  const base = parts[0];
+  const args = parts.slice(1);
+  const handler = TERM_CMDS[cmd] || TERM_CMDS[base];
+  if (handler) {
+   const result = handler(args);
+   if (result === '__CLEAR__') { output.innerHTML = ''; return; }
+   addTermLine('out', result);
+  } else {
+   addTermLine('err', `bash: ${base}: command not found (this is a simulator — try "help")`);
+  }
+  output.scrollTop = output.scrollHeight;
+ }
+
+ function addTermLine(type, text) {
+  const el = document.createElement('div');
+  el.className = `t-line t-${type}`;
+  el.textContent = text;
+  output.appendChild(el);
+  output.scrollTop = output.scrollHeight;
+ }
+
+ window.addTermLine = addTermLine;
+}
+
+// ===================== CERTS =====================
+function renderCerts() {
+ const grid = document.getElementById('certsGrid');
+ if (!grid) return;
+ grid.innerHTML = CERTS.map(c => {
+  const relatedPhase = PHASES.find(p => p.id.includes(c.id.substring(0,2)));
+  const certProg = Math.min(100, Math.round(getTotalProgress().pct * 1.2));
+  return `<div class="cert-card" style="--cert-color:${c.color}">
+   <div class="cert-logo">${c.icon}</div>
+   <div class="cert-name">${c.name}</div>
+   <div class="cert-provider">${c.provider} • ${c.prepTime} prep</div>
+   <div style="margin-bottom:16px">
+    <div style="font-size:10px;color:var(--text-muted);letter-spacing:1px;margin-bottom:8px">KEY TOPICS</div>
+    <div>${c.topics.map(t=>`<span style="display:inline-block;font-size:10px;padding:3px 8px;margin:2px;border-radius:4px;background:${c.color}15;color:${c.color};border:1px solid ${c.color}33">${t}</span>`).join('')}</div>
+   </div>
+   <div class="cert-timeline">${c.timeline.map(t=>`<div class="cert-milestone" style="--cert-color:${c.color}">${t}</div>`).join('')}</div>
+   <div class="cert-progress">
+    <div class="cert-label">Readiness: ${certProg}%</div>
+    <div class="cert-progress-bar"><div class="cert-progress-fill" style="background:${c.color};width:${certProg}%"></div></div>
+   </div>
+   <a href="${c.link}" target="_blank" rel="noopener" style="display:inline-block;margin-top:16px;font-size:11px;color:${c.color};text-decoration:none;border:1px solid ${c.color}44;padding:6px 14px;border-radius:6px">Learn More →</a>
+  </div>`;
+ }).join('');
+}
+
+// ===================== CHEATSHEETS =====================
+function renderCheatsheets() {
+ const grid = document.getElementById('cheatGrid');
+ if (!grid) return;
+ grid.innerHTML = CHEATSHEETS.map((cs, i) => `
+  <div class="cheat-card" id="cheat-${i}">
+   <div class="cheat-header" onclick="toggleCheat(${i})">
+    <span class="cheat-title">📋 ${cs.title}</span>
+    <span style="color:var(--neon-cyan);font-size:11px">${cs.items.length} commands ▼</span>
+   </div>
+   <div class="cheat-body">
+    ${cs.items.map(([cmd,desc]) => `<div class="cheat-line"><code class="cheat-cmd">${cmd}</code><span class="cheat-desc">${desc}</span></div>`).join('')}
+   </div>
+  </div>`).join('');
+}
+
+function toggleCheat(i) {
+ document.getElementById(`cheat-${i}`)?.classList.toggle('open');
+}
+
+function downloadAllCheatsheets() {
+ let content = 'CLOUD ENGINEER CHEAT SHEETS\n' + '='.repeat(50) + '\n\n';
+ CHEATSHEETS.forEach(cs => {
+  content += `\n## ${cs.title}\n` + '-'.repeat(40) + '\n';
+  cs.items.forEach(([cmd, desc]) => { content += `${cmd.padEnd(55)} ${desc}\n`; });
+ });
+ const blob = new Blob([content], {type:'text/plain'});
+ const a = document.createElement('a');
+ a.href = URL.createObjectURL(blob);
+ a.download = 'cloud-engineer-cheatsheets.txt';
+ a.click();
+}
+
+// ===================== ARCHITECTURE =====================
+function renderArchitecture() {
+ const container = document.getElementById('archContainer');
+ if (!container) return;
+ container.innerHTML = ARCHITECTURES.map(arch => `
+  <div style="margin-bottom:40px">
+   <h3 style="font-family:var(--font-head);font-size:16px;margin-bottom:8px;color:var(--text-primary)">${arch.title}</h3>
+   <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px">${arch.desc}</p>
+   <div class="arch-diagram">
+    ${arch.rows.map((row, ri) => `
+     <div class="arch-tier-label">${row.label}</div>
+     <div class="arch-row">
+      ${row.nodes.map(n => `
+       <div class="arch-node" title="${n.note}" style="border-color:${row.color}44;color:${row.color}">
+        <span class="node-icon">${n.icon}</span>
+        <div style="white-space:pre-line;font-size:10px">${n.name}</div>
+       </div>
+      `).join('<div class="arch-arrow">→</div>')}
+     </div>
+     ${ri < arch.rows.length - 1 ? '<div style="text-align:center;color:rgba(255,255,255,0.1);font-size:20px;margin:4px 0">↓</div>' : ''}
+    `).join('')}
+   </div>
+  </div>`).join('');
+}
+
+// ===================== ACHIEVEMENTS =====================
+function checkAchievements(event) {
+ const { done, total, pct } = getTotalProgress();
+ ACHIEVEMENTS.forEach(ach => {
+  if (ach.unlocked) return;
+  let unlock = false;
+  if (ach.req === 1 && done >= 1) unlock = true;
+  if (ach.req === 'quiz:perfect' && event === 'quiz:perfect') unlock = true;
+  if (typeof ach.req === 'string' && ach.req.startsWith('phase:')) {
+   const phaseId = ach.req.split(':')[1];
+   const phase = PHASES.find(p => p.id === phaseId);
+   if (phase && getPhaseProgress(phase) >= 100) unlock = true;
+  }
+  if (typeof ach.req === 'string' && ach.req.startsWith('progress:')) {
+   const needed = parseInt(ach.req.split(':')[1]);
+   if (pct >= needed) unlock = true;
+  }
+  if (typeof ach.req === 'string' && ach.req.startsWith('streak:')) {
+   const needed = parseInt(ach.req.split(':')[1]);
+   if ((state.streak || 0) >= needed) unlock = true;
+  }
+  if (unlock) {
+   ach.unlocked = true;
+   showToast(`🎖 Achievement Unlocked: ${ach.name}!`);
+  }
+ });
+ renderAchievements();
+}
+
+function renderAchievements() {
+ const grid = document.getElementById('achGrid');
+ if (!grid) return;
+ grid.innerHTML = ACHIEVEMENTS.map(a => `
+  <div class="ach-card ${a.unlocked ? 'unlocked' : 'locked'}">
+   ${a.unlocked ? '<div class="ach-badge">UNLOCKED</div>' : ''}
+   <span class="ach-icon">${a.icon}</span>
+   <div class="ach-name">${a.name}</div>
+   <div class="ach-desc">${a.desc}</div>
+  </div>`).join('');
+}
+
+// ===================== NAVIGATION =====================
+function showSection(id) {
+ document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+ document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+ document.getElementById(`s-${id}`)?.classList.add('active');
+ document.querySelectorAll('.nav-item').forEach(n => {
+  if (n.getAttribute('onclick')?.includes(id)) n.classList.add('active');
+ });
+
+ const titles = {
+  dashboard:'Dashboard', roadmap:'Complete Roadmap', dailyplan:'Daily Learning Plan',
+  skilltree:'Skill Tree', quiz:'Knowledge Quizzes', terminal:'Terminal Lab',
+  certs:'Certifications', cheatsheets:'Cheat Sheets', architecture:'Architecture Diagrams',
+  achievements:'Achievements'
+ };
+ set('topbarTitle', titles[id] || 'Cloud Hero');
+ state.currentSection = id;
+
+ if (id === 'skilltree') initSkillTree();
+ if (id === 'certs') renderCerts();
+
+ // Close mobile sidebar
+ if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() {
+ document.getElementById('sidebar')?.classList.toggle('open');
+}
+
+function handleSearch(val) {
+ state.searchQuery = val;
+ if (state.currentSection === 'roadmap') renderRoadmap(val);
+}
+
+function setFilter(val, el) {
+ state.filter = val;
+ document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+ if (el) el.classList.add('active');
+ renderRoadmap(state.searchQuery);
+}
+
+// ===================== TOAST =====================
+function showToast(msg) {
+ const t = document.createElement('div');
+ t.className = 'toast';
+ t.textContent = msg;
+ document.body.appendChild(t);
+ setTimeout(() => { t.classList.add('fade-out'); setTimeout(() => t.remove(), 300); }, 2500);
+}
+
+// ===================== INIT =====================
+document.addEventListener('DOMContentLoaded', () => {
+ loadState();
+ renderRoadmap();
+ renderDailyPlan();
+ renderQuiz();
+ initTerminal();
+ renderCheatsheets();
+ renderArchitecture();
+ renderAchievements();
+ updateDashboard();
+
+ // Cta button
+ document.querySelectorAll('.cta-btn').forEach(b => {
+  b.addEventListener('click', () => showSection('roadmap'));
+ });
+});
+</script>
+</body>
+</html>
