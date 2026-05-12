@@ -207,7 +207,7 @@ Save.
 Your site will be live at:
 
 ```bash
-<a href = "https://gagan-gk.github.io/cloud-Engineer">gagan-gk.github.io/cloud-Engineer/</a>
+[cloud](gagan-gk.github.io/cloud-Engineer)
 ```
 
 ---
