@@ -162,7 +162,7 @@ Includes:
 
 Go to:
 
-[GitHub](https://github.com?utm_source=chatgpt.com)
+[GitHub](https://github.com)
 
 Create a new repository.
 
@@ -207,7 +207,7 @@ Save.
 Your site will be live at:
 
 ```bash
-https://yourusername.github.io/repository-name/
+https://gagan-gk.github.io/cloud-Engineer/
 ```
 
 ---
