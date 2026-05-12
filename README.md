@@ -207,7 +207,7 @@ Save.
 Your site will be live at:
 
 ```bash
-[cloud](gagan-gk.github.io/cloud-Engineer)
+https://gagan-gk.github.io/cloud-Engineer
 ```
 
 ---
